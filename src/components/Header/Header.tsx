@@ -1,6 +1,6 @@
 import { MobileSidebar } from "./mobile-sidebar";
 import { NavLinks } from "./nav-links";
-import { ThemeToggle } from "@/theme/theme-toggle";
+// import { ThemeToggle } from "@/theme/theme-toggle";
 import { useNavigate } from "react-router-dom";
 import { removeLocalAuth } from "@/helpers/local-auth";
 import {  useSelector } from "react-redux";
