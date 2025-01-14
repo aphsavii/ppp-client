@@ -35,7 +35,7 @@ function Header() {
             </a>
           </div>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             {auth.isAuthenticated && (
               <button
                 onClick={handleLogout}
