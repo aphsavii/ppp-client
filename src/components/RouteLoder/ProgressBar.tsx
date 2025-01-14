@@ -19,7 +19,7 @@ const ProgressBar = () => {
   }, [navigation.state, location.pathname]);
 
   return (
-    <div style={{ marginTop: '60px' }}>
+    <div style={{ marginTop: '0px' }}>
       <LoadingBar
         color="#f11946"
         progress={progress}
