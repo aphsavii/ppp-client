@@ -72,7 +72,7 @@ function Home() {
 
         {/* CTA Section */}
         <div className="mt-16 text-center">
-          <Link to={'/login'}>
+          <Link to={'/aptitudes'}>
           <Button  className="px-8 py-3 text-lg">
             Get Started
           </Button>
