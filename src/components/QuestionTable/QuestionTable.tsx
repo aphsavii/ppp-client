@@ -16,7 +16,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shadcn/ui/dialog";
 interface QuestionTableProps {
   questions: Question[];

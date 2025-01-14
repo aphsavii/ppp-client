@@ -9,6 +9,7 @@ import { AuthState } from "./types/User";
 import { useDispatch } from "react-redux";
 import { setAuth } from "./redux/slices/auth";
 import { useLocation } from "react-router-dom";
+import ProgressBar from "./components/RouteLoder/ProgressBar";
 
 function Layout() {
   const navigate = useNavigate();
@@ -50,8 +51,9 @@ function Layout() {
   return (
     <div className="dark:bg-slate-800">
       <Header />
-      <Toaster />
+      <ProgressBar/>
       <Outlet />
+      <Toaster />
       <Footer />
     </div>
   );

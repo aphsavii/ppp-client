@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/shadcn/ui/card";
 import { Input } from "@/shadcn/ui/input";
 import { Button } from "@/shadcn/ui/button";
 import { Label } from "@/shadcn/ui/label";
-import { Mail, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import userService from "@/api/services/user.service";
 import { useNavigate } from "react-router-dom";

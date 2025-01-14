@@ -3,7 +3,7 @@ import { NavLinks } from "./nav-links";
 import { ThemeToggle } from "@/theme/theme-toggle";
 import { useNavigate } from "react-router-dom";
 import { removeLocalAuth } from "@/helpers/local-auth";
-import { UseDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { logout } from "@/redux/slices/auth";
 import { LogOut } from "lucide-react";
 function Header() {

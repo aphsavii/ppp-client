@@ -3,11 +3,11 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/shadcn/ui/card";
 import { Input } from "@/shadcn/ui/input";
 import { Button } from "@/shadcn/ui/button";
 import { Label } from "@/shadcn/ui/label";
-import { Mail, Loader2 } from "lucide-react";
+import {  Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
 import { TRADES } from "@/constants";
 import userService from "@/api/services/user.service";
-import { toast, useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 function Signup() {
   const [isLoading, setIsLoading] = useState(false);

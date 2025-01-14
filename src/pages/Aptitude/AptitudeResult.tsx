@@ -5,7 +5,6 @@ import aptitudeService from "@/api/services/aptitude.service";
 import { useToast } from "@/hooks/use-toast";
 import { ApiResponse } from "@/types/Api";
 import { useSearchParams } from "react-router-dom";
-import  { AxiosError } from "axios";
 
 interface Question {
   id: number;
@@ -59,7 +58,7 @@ const AptitudeResult = () => {
       } catch (error) {
         toast({
           title: "Error",
-          description: (error as AxiosError).response.data.message,
+          description: (error as any).response.data.message,
           variant: "destructive",
         });
       }

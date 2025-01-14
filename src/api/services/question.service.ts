@@ -1,5 +1,5 @@
 import { axiosAuthInstance } from "@/api/middlewares/axiosInstance";
-import { Question, QuestionFilters } from "@/types/Question";
+import {  QuestionFilters } from "@/types/Question";
 
 class QuestionService{
     public getQuestions(page: number, limit: number, filters: QuestionFilters){
