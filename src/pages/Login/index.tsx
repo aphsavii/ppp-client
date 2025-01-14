@@ -66,7 +66,7 @@ function Login() {
         };
         setLocalAuth(authState);
         dispatch(setAuth(authState));
-        navigate("/aptitudes");
+        navigate("/");
       } else showErrorToast(res.message);
     } catch (error) {
       showErrorToast((error as Error).message);
