@@ -74,7 +74,7 @@ function Signup() {
             Create Account
           </h2>
           <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-            Sign up using your email
+            Sign up using your Registration no
           </p>
         </CardHeader>
         <form onSubmit={handleSignup}>

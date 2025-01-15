@@ -20,11 +20,14 @@ const aptitudeSlice = createSlice(
             },
             uncheckQs: (state, action) => {
                 state.selectedQuestions = state.selectedQuestions.filter(question => question != action.payload);
+            },
+            uncheckAll: (state) => {
+                state.selectedQuestions = [];
             }
         }
     }
 );
 
 
-export const { checkeQs, uncheckQs } = aptitudeSlice.actions;
+export const { checkeQs, uncheckQs, uncheckAll } = aptitudeSlice.actions;
 export default aptitudeSlice.reducer;

@@ -3,7 +3,7 @@ import { Question, QuestionFilters } from "@/types/Question";
 
 import questionService from "@/api/services/question.service";
 import PaginationComp from "@/components/pagination/PaginationComp";
-import QuestionTable from '../../components/QuestionTable/QuestionTable';
+import QuestionTable from "../../components/QuestionTable/QuestionTable";
 import Filters from "@/components/QuestionTable/Filters";
 import { useToast } from "@/hooks/use-toast";
 import AddQuestionDialog from "@/components/QuestionTable/AddQuestionDialog";
@@ -11,6 +11,7 @@ import { Button } from "@/shadcn/ui/button";
 import aptitudeService from "@/api/services/aptitude.service";
 import { useSelector } from "react-redux";
 import { Aptitude } from "@/types/Aptitude";
+import { uncheckAll } from "@/redux/slices/aptitude";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shadcn/ui/select";
+import { useDispatch } from "react-redux";
 
 export default function QuestionSet() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -38,11 +40,15 @@ export default function QuestionSet() {
   });
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const dispatch = useDispatch();
+  const selectedQuestions = useSelector(
+    (state: any) => state.aptitude.selectedQuestions
+  );
 
-  const selectedQuestions = useSelector((state: any) => state.aptitude.selectedQuestions);
-
-  const [upcomingAptitudes,setUpcomingAptitudes] = useState<Aptitude[]>([]);
-  const [selectedAptitude, setSelectedAptitude] = useState<Aptitude | null>(null);
+  const [upcomingAptitudes, setUpcomingAptitudes] = useState<Aptitude[]>([]);
+  const [selectedAptitude, setSelectedAptitude] = useState<Aptitude | null>(
+    null
+  );
 
   const fetchQuestions = async (page: number, limit: number) => {
     try {
@@ -67,15 +73,15 @@ export default function QuestionSet() {
 
   const getUpcomingAptitudes = async () => {
     try {
-      const {data} = await aptitudeService.getUpcomingAptitudes();
+      const { data } = await aptitudeService.getUpcomingAptitudes();
       setUpcomingAptitudes(data);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  const addQuestionsToAptitude = async (aptiId:number) => {
-    if(selectedQuestions.length === 0){
+  const addQuestionsToAptitude = async (aptiId: number) => {
+    if (selectedQuestions.length === 0) {
       toast({
         title: "Error",
         description: "Please select atleast one question",
@@ -84,26 +90,27 @@ export default function QuestionSet() {
       return;
     }
     try {
-      await aptitudeService.addQustionsToAptitude(aptiId,selectedQuestions);
+      await aptitudeService.addQustionsToAptitude(aptiId, selectedQuestions);
       toast({
         title: "Success",
         description: "Questions added to aptitude successfully",
       });
       setDialogOpen(false);
+      dispatch(uncheckAll());
     } catch (error) {
       toast({
         title: "Error",
-        description: (error as Error).message || 'Failed to add questions to aptitude',
+        description:
+          (error as Error).message || "Failed to add questions to aptitude",
         variant: "destructive",
       });
     }
-  }
+  };
 
   useEffect(() => {
     // Fetch questions data
     fetchQuestions(page, 10);
     getUpcomingAptitudes();
-
   }, [page, filters]);
 
   return (
@@ -112,46 +119,56 @@ export default function QuestionSet() {
         <h1 className="text-2xl sm:text-3xl font-bold">Question Set</h1>
         {/* Add Question Dialog */}
         <div className="flex gap-5">
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Add Question to Aptitude</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Select Aptitude</DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col gap-4">
-              <Select onValueChange={(value) => setSelectedAptitude(upcomingAptitudes.find(apt => apt.id === Number(value)) || null)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an aptitude" />
-                </SelectTrigger>
-                <SelectContent>
-                  {upcomingAptitudes.map((aptitude) => (
-                    <SelectItem key={aptitude.id} value={String(aptitude.id)}>
-                      {aptitude.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={() => selectedAptitude?.id !== undefined && addQuestionsToAptitude(selectedAptitude.id)}
-                disabled={!selectedAptitude}
-              >
-                Save
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        <AddQuestionDialog/>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>Add Question to Aptitude</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Select Aptitude</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col gap-4">
+                <Select
+                  onValueChange={(value) =>
+                    setSelectedAptitude(
+                      upcomingAptitudes.find(
+                        (apt) => apt.id === Number(value)
+                      ) || null
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an aptitude" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {upcomingAptitudes.map((aptitude) => (
+                      <SelectItem key={aptitude.id} value={String(aptitude.id)}>
+                        {aptitude.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={() =>
+                    selectedAptitude?.id !== undefined &&
+                    addQuestionsToAptitude(selectedAptitude.id)
+                  }
+                  disabled={!selectedAptitude}
+                >
+                  Save
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <AddQuestionDialog />
         </div>
-
       </div>
 
       {/* Filters */}
       <Filters filters={filters} setFilters={setFilters} />
-     
+
       {/* Questions Table */}
-      <QuestionTable questions={questions} />     
+      <QuestionTable questions={questions} />
 
       {/* Pagination */}
       <PaginationComp page={page} totalPages={totalPages} setPage={setPage} />
