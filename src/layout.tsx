@@ -21,6 +21,7 @@ function Layout() {
     if(sessionStorage.getItem("authState") === null && localStorage.getItem("authState") === null) navigate('login');
     else if (sessionStorage.getItem("authState") === null && localStorage.getItem("authState") != null) {
       userService.verifySession().then((res: any) => {
+        console.log(res.status);
         if (res.status == 200) {
           let authState: AuthState = {
             isAuthenticated: true,
@@ -39,6 +40,9 @@ function Layout() {
         } else {
           navigate("/login");
         }
+      }).catch((err) => {
+        console.log(err);
+        navigate("/login");
       });
     }
     else if(sessionStorage.getItem("authState") != null && localStorage.getItem("authState") != null) {
