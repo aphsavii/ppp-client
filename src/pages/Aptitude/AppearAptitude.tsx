@@ -213,7 +213,7 @@ const AppearAptitude = () => {
         sessionStorage.removeItem(`aptitude-answers-${aptitude.id}`);
         sessionStorage.removeItem(`aptitude-start-${aptitude.id}`);
       }
-      navigate("/");
+      navigate("/aptitudes");
       
     } catch (error: any) {
       toast({

@@ -5,6 +5,7 @@ import React from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import PageNotFound from "./pages/PageNotFound";
 // import Dashboard from "./pages/admin/Dashboard";
 // import QuestionSet from "./pages/admin/QuestionSet";
 // import Aptitude from "./pages/admin/Aptitude";
@@ -41,6 +42,10 @@ const Routes = createRoutesFromElements(
     <Route path="/aptitudes" element={<Aptitudes />}></Route>
     <Route path="/aptitude/appear/:id" element={<AppearAptitude />}></Route>
     <Route path="/aptitude/response/:id" element={<AptitudeResult />} />
+
+
+    {/* {404 Route} */}
+    <Route path="*" element={<PageNotFound />} />
   </Route>
 );
 
