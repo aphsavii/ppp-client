@@ -5,6 +5,11 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { rootState } from "@/redux/store";
 import { AuthState } from "@/types/User";
+import { LogOut, User } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { removeLocalAuth } from "@/helpers/local-auth";
+import { logout } from "@/redux/slices/auth";
+import { useNavigate } from "react-router-dom";
 
 const links = [
   {
@@ -32,10 +37,29 @@ const links = [
   },
 ]
 
+
 export function NavLinks() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  const handleLogout = () => {
+    removeLocalAuth();
+    dispatch(logout());
+    navigate("/login");
+  };
+
   const auth: AuthState = useSelector((state: rootState) => state.auth);
   return (
     <>
+    {
+      auth.isAuthenticated &&
+      <Link to="/user/dashboard" className={cn("nav-link")}>
+        <Button variant="ghost" className="w-full justify-start">
+          <User size={14} className="mr-2 inline" />          
+          Profile
+        </Button>
+      </Link>
+    }
       {links.map((link) => (
         (link.admin && auth?.isAdmin) ? (
           <Link to={link.href} key={link.title} className={cn("nav-link")}>
@@ -55,6 +79,16 @@ export function NavLinks() {
           )
         )
       ))}
+    {
+      auth.isAuthenticated && 
+      <Button variant="ghost" className="w-full justify-start" onClick={() => {
+        handleLogout()
+      }}>
+        <LogOut size={14} className="mr-2 inline" />          
+        Logout
+      </Button>
+    }
+
     </>
   )
 }

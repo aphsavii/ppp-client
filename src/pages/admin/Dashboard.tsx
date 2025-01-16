@@ -41,6 +41,7 @@ function Dashboard() {
     name: "",
     test_timestamp: "",
     duration: 0,
+    total_questions: 0,
   });
 
   const { toast } = useToast();
@@ -73,7 +74,7 @@ function Dashboard() {
   }, []);
 
   const handleCreateTest = async () => {
-    if (!formData.name || !formData.test_timestamp || !formData.duration) {
+    if (!formData.name || !formData.test_timestamp || !formData.duration || !formData.total_questions) {
       toast({
         title: "Error",
         description: "All fields are required",
@@ -101,7 +102,7 @@ function Dashboard() {
       });
     } finally {
       setShowCreateDialog(false);
-      setFormData({ name: "", test_timestamp: "", duration: 0 });
+      setFormData({ name: "", test_timestamp: "", duration: 0, total_questions: 0 });
     }
   };
 
@@ -136,7 +137,7 @@ function Dashboard() {
     } finally {
       setShowEditDialog(false);
       setSelectedTest(null);
-      setFormData({ name: "", test_timestamp: "", duration: 0 });
+      setFormData({ name: "", test_timestamp: "", duration: 0, total_questions: 0 });
     }
   };
 
@@ -171,6 +172,7 @@ function Dashboard() {
       name: test.name,
       test_timestamp: formattedDate,
       duration: test.duration,
+      total_questions: 0
     });
     setSelectedTest(test);
     setShowEditDialog(true);
@@ -243,6 +245,23 @@ function Dashboard() {
                         setFormData({
                           ...formData,
                           duration: parseInt(e.target.value),
+                        })
+                      }
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="total_questions" className="text-right">
+                      Total Questions
+                    </Label>
+                    <Input
+                      id="total_questions"
+                      type="number"
+                      value={formData.total_questions}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          total_questions: parseInt(e.target.value),
                         })
                       }
                       className="col-span-3"

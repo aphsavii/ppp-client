@@ -20,6 +20,9 @@ class UserService {
     resetPassword(regno: string, otp: string, password: string) {
         return axiosInstance.post('/user/forgot-password', { regno, otp, password }).then(res => res.data).catch(err => Promise.reject(err));
     }
+    getUserDashBoard() {
+        return  axiosAuthInstance.get('/user/dashboard').then(res => res.data).catch(err => Promise.reject(err));
+    }
 }
 
 export default new UserService();

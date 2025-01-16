@@ -23,6 +23,7 @@ const AppearAptitude = React.lazy(() => import("./pages/Aptitude/AppearAptitude"
 const AptitudeResult = React.lazy(() => import("./pages/Aptitude/AptitudeResult"));
 const Aptitudes = React.lazy(() => import("./pages/Aptitude/Aptitudes"));
 const ForgotPass = React.lazy(() => import("./pages/Login/ForgotPass"));
+const UserDashboard = React.lazy(() => import('./pages/UserDashboard/UserDashboard'));
 
 
 const Routes = createRoutesFromElements(
@@ -42,6 +43,7 @@ const Routes = createRoutesFromElements(
     <Route path="/aptitudes" element={<Aptitudes />}></Route>
     <Route path="/aptitude/appear/:id" element={<AppearAptitude />}></Route>
     <Route path="/aptitude/response/:id" element={<AptitudeResult />} />
+    <Route path="/user/dashboard" element={<UserDashboard />} />
 
 
     {/* {404 Route} */}

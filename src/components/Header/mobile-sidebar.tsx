@@ -1,9 +1,16 @@
-import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from "@/shadcn/ui/sheet"
-import { Menu, X } from "lucide-react"
-import { Button } from "@/shadcn/ui/button"
-import { NavLinks } from "./nav-links"
-
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+  SheetHeader,
+  SheetTitle,
+} from "@/shadcn/ui/sheet";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/shadcn/ui/button";
+import { NavLinks } from "./nav-links";
 export function MobileSidebar() {
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -19,7 +26,11 @@ export function MobileSidebar() {
         <div className="flex flex-col gap-4">
           <div className="flex justify-end">
             <SheetClose asChild>
-              <Button variant="ghost" size="icon" className="absolute top-3 right-5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-3 right-5"
+              >
                 <X className="h-6 w-6 text-white " />
                 <span className="sr-only">Close menu</span>
               </Button>
@@ -31,5 +42,5 @@ export function MobileSidebar() {
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

@@ -96,7 +96,7 @@ const ForgotPass = () => {
             Reset Password
           </h2>
           <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-            Enter your SLIET email to reset password
+            Enter your Registration number to reset password
           </p>
         </CardHeader>
         <form onSubmit={handleResetPassword}>
