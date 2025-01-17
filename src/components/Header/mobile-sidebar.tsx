@@ -9,10 +9,19 @@ import {
 import { Menu, X } from "lucide-react";
 import { Button } from "@/shadcn/ui/button";
 import { NavLinks } from "./nav-links";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+
 export function MobileSidebar() {
+  const [open, setOpen] = useState(false);
+  const pathname = useLocation().pathname;
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-6 w-6" />
