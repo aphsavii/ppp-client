@@ -23,6 +23,9 @@ class UserService {
     getUserDashBoard() {
         return  axiosAuthInstance.get('/user/dashboard').then(res => res.data).catch(err => Promise.reject(err));
     }
+    updateAvatar(formData: FormData) {
+        return axiosAuthInstance.post('/user/update-avatar', formData).then(res => res.data).catch(err => Promise.reject(err));
+    }
 }
 
 export default new UserService();

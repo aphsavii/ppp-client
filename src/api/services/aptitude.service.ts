@@ -54,5 +54,14 @@ class AptitudeService {
     }[]) {
         return axiosAuthInstance.post('/aptitude/submit/' + aptitudeId, { userData, answers }).then(res => res.data).catch(err => (Promise.reject(err.response.data)));
     }
+
+    public getPastAptitudes() {
+        return axiosAuthInstance.get('/aptitude/past').then(res => res.data).catch(err => (Promise.reject(err.response.data)));
+    }
+
+    public getToppers(aptitudeId: number) {
+        return axiosAuthInstance.get('/aptitude/toppers/' + aptitudeId).then(res => res.data).catch(err => (Promise.reject(err.response.data)));
+    }
+    
 }
 export default new AptitudeService();

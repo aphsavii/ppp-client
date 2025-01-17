@@ -84,7 +84,7 @@ function Signup() {
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter your full name"
+                placeholder="Avinash"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -111,7 +111,7 @@ function Signup() {
               <Input
                 id="registration"
                 type="text"
-                placeholder="Enter your registration number"
+                placeholder="2331080"
                 value={registration}
                 onChange={(e) => setRegistration(e.target.value)}
                 required
@@ -137,7 +137,7 @@ function Signup() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="axC123@34Ax&"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -149,7 +149,7 @@ function Signup() {
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                placeholder="axC123@34Ax&"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

@@ -1,6 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shadcn/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shadcn/ui/dialog";
+import { Button } from "@/shadcn/ui/button";
+import { Input } from "@/shadcn/ui/input";
 import { ApiResponse } from "@/types/Api";
 import userService from "@/api/services/user.service";
 import { useToast } from "@/hooks/use-toast";
@@ -20,14 +23,21 @@ import {
 } from "recharts";
 import { DashboardData } from "@/types/dashboard";
 import { rootState } from "@/redux/store";
+import { PenSquare } from "lucide-react";
 
 const UserDashboard = () => {
   const dispatch = useDispatch();
   const dashboardData:DashboardData = useSelector((state: rootState) => state.userDash);
   const { toast } = useToast();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      // Return if we already have dashboard data
+      if (dashboardData.userDetails.name) return;
+
       try {
         const response: ApiResponse = await userService.getUserDashBoard();
         dispatch(setDashboardData(response.data));
@@ -47,8 +57,39 @@ const UserDashboard = () => {
     };
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, dashboardData.userDetails.name]);
 
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', avatarFile);
+      
+      const response: ApiResponse = await userService.updateAvatar(formData);
+      const avatarUrl = response.data;
+      dispatch(setDashboardData({ ...dashboardData, userDetails: { ...dashboardData.userDetails, avatar: avatarUrl } }));
+      toast({
+        title: "Success",
+        description: "Avatar updated successfully",
+        variant: "success",
+      });
+      setAvatarFile(null);
+      setDialogOpen(false);
+      
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload avatar",
+        variant: "destructive",
+      });
+      setDialogOpen(false);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const recentTestsData = dashboardData.recentTests.map((test) => ({
     name: test.test_name,
@@ -86,10 +127,34 @@ const UserDashboard = () => {
       {/* User Profile Section */}
       <Card>
         <CardContent className="flex items-center gap-4 p-6">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={dashboardData.userDetails.avatar} />
-            <AvatarFallback>{dashboardData.userDetails.name[0]}</AvatarFallback>
-          </Avatar>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <div className="cursor-pointer relative group">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={dashboardData.userDetails.avatar} />
+                  <AvatarFallback>{dashboardData.userDetails.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <PenSquare className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Profile Picture</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                />
+                <Button  onClick={handleAvatarUpload} disabled={!avatarFile || uploading}>
+                  {uploading ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <div>
             <h2 className="text-2xl font-bold">
               {dashboardData.userDetails.name}
