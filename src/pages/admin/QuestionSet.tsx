@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/shadcn/ui/select";
 import { useDispatch } from "react-redux";
+import { ApiResponse } from "@/types/Api";
 
 export default function QuestionSet() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -52,7 +53,7 @@ export default function QuestionSet() {
 
   const fetchQuestions = async (page: number, limit: number) => {
     try {
-      const res = await questionService.getQuestions(page, limit, filters);
+      const res:ApiResponse = await questionService.getQuestions(page, limit, filters);
       setTotalPages(res.data.totalPages);
       setQuestions(res.data.results);
       console.log(filters);
