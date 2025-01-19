@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Check, X } from "lucide-react";
+import { Check, X, Stars } from "lucide-react";
 import aptitudeService from "@/api/services/aptitude.service";
 import { useToast } from "@/hooks/use-toast";
 import { ApiResponse } from "@/types/Api";
 import { useSearchParams } from "react-router-dom";
+import questionService from "@/api/services/question.service";
 
 interface Question {
   id: number;
@@ -13,12 +14,14 @@ interface Question {
   correct_option: number;
   format: "text" | "img";
   question_type: string;
-  marks: number; // Assuming each question has a specific weight for marks
+  marks: number;
 }
 
 interface QuestionResponse {
   question: Question;
   answer: number;
+  explanation?: string;
+  isExplaining?: boolean;
 }
 
 interface ResultSummary {
@@ -38,6 +41,74 @@ const AptitudeResult = () => {
   const { id } = useParams();
   const regno = searchParams.get("regno");
 
+  const explainUsingAi = async (questionId: number, index: number) => {
+    try {
+      setResponses((prev) =>
+        prev.map((r, i) => (i === index ? { ...r, isExplaining: true } : r))
+      );
+  
+      const response = await questionService.explainUsingAi(questionId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+  
+      let explanation = '';
+      const decoder = new TextDecoder();
+  
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+  
+        // Decode the chunk and split by newlines
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+  
+        for (const line of lines) {
+          if (line.trim().startsWith('data: ')) {
+            try {
+              // Remove 'data: ' prefix and parse JSON
+              const jsonStr = line.replace('data: ', '').trim();
+              if (jsonStr) {
+                const data = JSON.parse(jsonStr);
+                if (data.content) {
+                  explanation += data.content;
+                  // Update state with accumulated explanation
+                  setResponses((prev) =>
+                    prev.map((r, i) => 
+                      i === index ? { ...r, explanation } : r
+                    )
+                  );
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing SSE data:', e);
+            }
+          }
+        }
+      }
+  
+      setResponses((prev) =>
+        prev.map((r, i) => (i === index ? { ...r, isExplaining: false } : r))
+      );
+    } catch (error) {
+      console.error('AI Explanation Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to get AI explanation",
+        variant: "destructive",
+      });
+      setResponses((prev) =>
+        prev.map((r, i) => (i === index ? { ...r, isExplaining: false } : r))
+      );
+    }
+  };
+
   useEffect(() => {
     const fetchResult = async () => {
       try {
@@ -45,15 +116,33 @@ const AptitudeResult = () => {
           Number(id),
           regno
         );
-        setResponses(response.data.responses);
+        interface ApiResponseData {
+          responses: Array<{
+            question: Question;
+            answer: number;
+            explanation?: string;
+          }>;
+          rank: number;
+          total_users: number;
+          marks: number;
+        }
+
+        setResponses(
+          (response.data as ApiResponseData).responses.map((r) => ({
+            ...r,
+            isExplaining: false,
+          }))
+        );
         setSummary({
           total_questions: response.data.responses.length,
           total_marks: response.data.responses.length,
           rank: response.data.rank,
           total_users: response.data.total_users,
           marks_obtained: response.data.marks,
-        //   calculate top %
-          top: ((+response.data.rank/+response.data.total_users) * 100).toFixed(2)
+          top: (
+            (+response.data.rank / +response.data.total_users) *
+            100
+          ).toFixed(2),
         });
       } catch (error) {
         toast({
@@ -63,6 +152,7 @@ const AptitudeResult = () => {
         });
       }
     };
+
 
     fetchResult();
   }, [id]);
@@ -81,9 +171,12 @@ const AptitudeResult = () => {
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-600 text-sm">Percentage</p>
-              <p className="text-2xl font-semibold">{
-                ((summary.marks_obtained / summary.total_marks) * 100).toFixed(2)
-                }%</p>
+              <p className="text-2xl font-semibold">
+                {((summary.marks_obtained / summary.total_marks) * 100).toFixed(
+                  2
+                )}
+                %
+              </p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-600 text-sm">Rank</p>
@@ -102,7 +195,11 @@ const AptitudeResult = () => {
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-600 text-sm">Better than </p>
               <p className="text-2xl font-semibold">
-                {summary.rank !== null ?(100-((summary.rank / summary.total_users) * 100)).toFixed(2) : "N/A"}
+                {summary.rank !== null
+                  ? (100 - (summary.rank / summary.total_users) * 100).toFixed(
+                      2
+                    )
+                  : "N/A"}
                 %
               </p>
             </div>
@@ -162,6 +259,35 @@ const AptitudeResult = () => {
                 </div>
               ))}
             </div>
+
+            {response.answer !== response.question.correct_option && (
+              <div className="mt-4">
+                {!response.explanation && !response.isExplaining && (
+                  <button
+                    onClick={() => explainUsingAi(response.question.id, index)}
+                    className="flex items-center gap-2 px-4 lg:px-4 lg:py-2 py-[5px] text-xs lg:text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-colors duration-200 shadow-md"
+                  >
+                    <Stars className="lg:h-4 lg:w-4 h-3 w-3" />
+                    Explain using AI
+                  </button>
+                )}
+
+                {response.isExplaining && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                    Getting AI explanation...
+                  </div>
+                )}
+
+                {response.explanation && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-100">
+                    <p className="text-gray-700 leading-relaxed">
+                      {response.explanation}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

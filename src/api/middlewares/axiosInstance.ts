@@ -27,4 +27,4 @@ axiosAuthInstance.interceptors.request.use(
     }
 );
 
-export {axiosInstance, axiosAuthInstance};
+export {axiosInstance, axiosAuthInstance,baseUrl};
