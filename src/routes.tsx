@@ -13,6 +13,7 @@ import PageNotFound from "./pages/PageNotFound";
 // import AptitudeResult from "./pages/Aptitude/AptitudeResult";
 // import Aptitudes from "./pages/Aptitude/Aptitudes";
 // import ForgotPass from "./pages/Login/ForgotPass";
+import GeolocationComponent from './components/GeoLocation/index';
 
 //  import lazily
 
@@ -25,6 +26,7 @@ const Aptitudes = React.lazy(() => import("./pages/Aptitude/Aptitudes"));
 const ForgotPass = React.lazy(() => import("./pages/Login/ForgotPass"));
 const UserDashboard = React.lazy(() => import('./pages/UserDashboard/UserDashboard'));
 const HallOfFame = React.lazy(() => import('./pages/HallOfFame/index'));
+const GeolocationComponent = React.lazy(() => import('./components/GeoLocation/index'));
 
 const Routes = createRoutesFromElements(
   <Route path="/" element={<Layout />}>
@@ -45,6 +47,7 @@ const Routes = createRoutesFromElements(
     <Route path="/aptitude/response/:id" element={<AptitudeResult />} />
     <Route path="/user/dashboard" element={<UserDashboard />} />
     <Route path="/hall-of-fame" element={<HallOfFame />} />
+    <Route path="/geo" element={<GeolocationComponent />} />
 
 
     {/* {404 Route} */}
