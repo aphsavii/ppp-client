@@ -17,6 +17,8 @@ import { ApiResponse } from "@/types/Api";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
+import CheatDetector from "@/components/CheatingDetector";
+
 const AppearAptitude = () => {
   const [regNo, setRegNo] = useState("");
   const [trade, setTrade] = useState("");
@@ -240,6 +242,7 @@ const AppearAptitude = () => {
   if (questions.length > 0) {
     return (
       <div className="container mx-auto p-4 max-w-md relative">
+        <CheatDetector/>
         <div className="fixed top-16 right-2 lg:right-4 bg-[#cc4a4a] backdrop-blur-sm text-white text-xs lg:text-sm px-2 py-1 rounded-md shadow">
           Time: {formatTime(timeLeft)}
         </div>
