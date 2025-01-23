@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useToast, toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const CheatDetector = () => {
   const [cheatingCount, setCheatingCount] = useState(0);
