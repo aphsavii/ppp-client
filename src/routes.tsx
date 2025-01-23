@@ -13,7 +13,6 @@ import PageNotFound from "./pages/PageNotFound";
 // import AptitudeResult from "./pages/Aptitude/AptitudeResult";
 // import Aptitudes from "./pages/Aptitude/Aptitudes";
 // import ForgotPass from "./pages/Login/ForgotPass";
-import GeolocationComponent from './components/GeoLocation/index';
 
 //  import lazily
 
