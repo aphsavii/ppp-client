@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ import { QUESTION_TYPES } from "@/constants";
 import questionService from "@/api/services/question.service";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ApiResponse } from "@/types/Api";
 
 const AddQuestionDialog: React.FC = () => {
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
@@ -48,10 +49,42 @@ const AddQuestionDialog: React.FC = () => {
     img: null,
   });
 
+  const [topics, setTopics] = useState<string[]>([]);
+  const [topicInput, setTopicInput] = useState("");
+  const [filteredTopics, setFilteredTopics] = useState<string[]>([]);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+
+  useEffect(() => {
+    questionService
+      .getTopics(newQuestion.question_type)
+      .then((res: ApiResponse) => setTopics(res.data))
+      .catch(console.error);
+  }, [newQuestion.question_type]);
+
+  useEffect(() => {
+    if (topicInput.trim()) {
+      const filtered = topics.filter(topic => 
+        topic.toLowerCase().includes(topicInput.toLowerCase()) &&
+        !selectedTopics.includes(topic)
+      );
+      setFilteredTopics(filtered);
+    } else {
+      setFilteredTopics([]);
+    }
+  }, [topicInput, topics, selectedTopics]);
+
+  useEffect(() => {
+    // Update newQuestion.topic_tags whenever selectedTopics changes
+    setNewQuestion(prev => ({
+      ...prev,
+      topic_tags: selectedTopics.join(',')
+    }));
+  }, [selectedTopics]);
+
   const handleAddQuestion = async () => {
     // validate
     if (
-      !newQuestion.topic_tags.length ||
+      !newQuestion.topic_tags ||
       !newQuestion.options.every((option) => option.trim()) ||
       newQuestion.correct_option < 0 ||
       newQuestion.correct_option >= newQuestion.options.length ||
@@ -178,34 +211,17 @@ const AddQuestionDialog: React.FC = () => {
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="topics" className="text-foreground">
-                Related Topics
-              </Label>
-              <Input
-                id="topics"
-                placeholder="Related topics (comma-separated)"
-                value={newQuestion.topic_tags}
-                onChange={(e) =>
-                  setNewQuestion({
-                    ...newQuestion,
-                    topic_tags: e.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div className="grid gap-2">
               <Label htmlFor="question-type" className="text-foreground">
                 Question Type
               </Label>
               <Select
                 value={newQuestion.question_type}
-                onValueChange={(value) =>
+                onValueChange={async (value) => {
                   setNewQuestion({
                     ...newQuestion,
                     question_type: value,
-                  })
-                }
+                  });
+                }}
               >
                 <SelectTrigger id="question-type">
                   <SelectValue placeholder="Question Type" />
@@ -218,6 +234,66 @@ const AddQuestionDialog: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="topics" className="text-foreground">
+                Related Topics
+              </Label>
+              <div className="flex flex-col gap-2">
+                <Input
+                  id="topics"
+                  placeholder="Type a topic and press Enter"
+                  value={topicInput}
+                  onChange={(e) => setTopicInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && topicInput.trim()) {
+                      e.preventDefault();
+                      const newTopic = topicInput.trim();
+                      if (!selectedTopics.includes(newTopic)) {
+                        setSelectedTopics([...selectedTopics, newTopic]);
+                      }
+                      setTopicInput('');
+                    }
+                  }}
+                />
+                {filteredTopics.length > 0 && (
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-md">
+                    {filteredTopics.map((topic) => (
+                      <button
+                        key={topic}
+                        className="px-2 py-1 text-sm bg-secondary rounded-md hover:bg-secondary/80"
+                        onClick={() => {
+                          setSelectedTopics([...selectedTopics, topic]);
+                          setTopicInput('');
+                        }}
+                      >
+                        {topic}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedTopics.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {selectedTopics.map((topic, index) => (
+                    <span 
+                      key={index} 
+                      className="px-2 py-1 text-sm bg-secondary rounded-md flex items-center gap-2"
+                    >
+                      {topic}
+                      <button
+                        onClick={() => {
+                          setSelectedTopics(selectedTopics.filter((_, i) => i !== index));
+                        }}
+                        className="text-xs hover:text-destructive"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -270,13 +346,12 @@ const AddQuestionDialog: React.FC = () => {
               </Label>
               <Select
                 value={String(newQuestion.correct_option)}
-                onValueChange={(value) =>
-                 {
-                 console.log(value);
+                onValueChange={(value) => {
+                  console.log(value);
                   setNewQuestion({
                     ...newQuestion,
                     correct_option: parseInt(value),
-                  })
+                  });
                 }}
               >
                 <SelectTrigger id="correct-option">
@@ -284,7 +359,7 @@ const AddQuestionDialog: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {newQuestion.options.map((_, index) => (
-                    <SelectItem key={index+1} value={String(index+1)}>
+                    <SelectItem key={index + 1} value={String(index + 1)}>
                       Option {index + 1}
                     </SelectItem>
                   ))}

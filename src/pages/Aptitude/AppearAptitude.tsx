@@ -34,7 +34,7 @@ const AppearAptitude = () => {
 
   const [answers, setAnswers] = useState<Answer[]>([]);
 
-  const questionsPerPage = 2;
+  const questionsPerPage = 10;
   const params = useParams();
   const aptiId = params.id;
 
@@ -160,10 +160,12 @@ const AppearAptitude = () => {
     
     try {
       setLoading(true);
-      const response: ApiResponse = await aptitudeService.getAptitudeForUser(
+      let response: ApiResponse = await aptitudeService.getAptitudeForUser(
         { trade, regno: regNo },
         aptiId
       );
+      if(typeof response.data === "string")
+      response.data= JSON.parse(response.data);
       const sortedQuestions = [
         ...response.data.questions.filter(
           (q: Question) => q.question_type === "GENERAL"
@@ -174,6 +176,8 @@ const AppearAptitude = () => {
       ];
       setQuestions(sortedQuestions);
       setAptitude(response.data.aptitude);
+
+      // assume data is in string, parse it then sort it then set it
     } catch (error: any) {
       toast({
         title: "Error",

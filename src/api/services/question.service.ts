@@ -26,6 +26,10 @@ class QuestionService {
         });
     }
 
+    public getTopics(type: string) {
+        return axiosAuthInstance.get('/question/topics?type=' + type).then
+            (res => res.data).catch(err => Promise.reject(err.response.data));
+    }
 }
 
 export default new QuestionService();
