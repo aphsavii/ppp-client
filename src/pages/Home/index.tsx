@@ -1,4 +1,3 @@
-
 import { Button } from "@/shadcn/ui/button";
 import { Card, CardContent } from "@/shadcn/ui/card";
 import { Link } from "react-router-dom";
@@ -13,7 +12,8 @@ function Home() {
             Welcome SLIET's Pre-Placement Portal
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-gray-500 dark:text-gray-400 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Preparing students for successful careers through comprehensive placement training and opportunities.
+            Preparing students for successful careers through comprehensive
+            placement training and opportunities.
           </p>
         </div>
 
@@ -44,6 +44,9 @@ function Home() {
               <p className="text-gray-600 dark:text-gray-400">
                 Practice aptitude tests to improve your problem-solving skills
               </p>
+              <Link className="float-right" to={"/aptitudes"}>
+                <Button  size="sm" className="px-4 my-3 lg:my-5 py-3 text-lg">Get Started</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -53,8 +56,12 @@ function Home() {
                 DSA Sheets
               </div>
               <p className="text-gray-600 dark:text-gray-400">
-                Data structures and algorithms practice sheets for better understanding
+                Data structures and algorithms practice sheets for better
+                understanding
               </p>
+              <span className="my-3 lg:my-5 px-3 py-1 bg-[#65b0b9] text-white font-medium rounded-2xl float-right">
+                Coming soon
+              </span>
             </CardContent>
           </Card>
 
@@ -66,17 +73,16 @@ function Home() {
               <p className="text-gray-600 dark:text-gray-400">
                 Participate in coding contests and improve your coding skills
               </p>
+
+              <span className="my-3 lg:my-5 px-3 py-1 bg-[#65b0b9] text-white font-medium rounded-2xl float-right">
+                Coming soon
+              </span>
             </CardContent>
           </Card>
         </div>
 
         {/* CTA Section */}
-        <div className="mt-16 text-center">
-          <Link to={'/aptitudes'}>
-          <Button  className="px-8 py-3 text-lg">
-            Get Started
-          </Button>
-          </Link>
+        <div className="mt-10 text-center">
           <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             Join our pre-placement program and kickstart your career
           </p>
