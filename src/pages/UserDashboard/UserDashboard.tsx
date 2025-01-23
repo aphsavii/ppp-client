@@ -91,34 +91,36 @@ const UserDashboard = () => {
     }
   };
 
-  const recentTestsData = dashboardData.recentTests.map((test) => ({
+  const recentTestsData = dashboardData.recentTests?.map((test) => ({
     name: test.test_name,
     score: (test.score / test.total_score) * 100,
     timestamp: new Date(
       parseInt(test.test_timestamp) * 1000
     ).toLocaleDateString(),
-  }));
+  })) || [];
 
-  const topicAnalysisData = dashboardData.topicAnalysis.map((topic) => ({
+  const topicAnalysisData = dashboardData.topicAnalysis?.map((topic) => ({
     name: topic.topic,
     accuracy: parseFloat(topic.accuracy),
     correct: parseInt(topic.correct_answers),
     incorrect: parseInt(topic.incorrect_answers),
     total: parseInt(topic.total_questions),
-  }));
+  })) || [];
 
   const statsData = [
     {
       name: "Tests Taken",
-      value: parseInt(dashboardData.testStats.total_tests_taken),
+      value: parseInt(dashboardData.testStats?.total_tests_taken || "0"),
     },
     {
       name: "Average Score",
-      value: parseFloat(dashboardData.testStats.average_score),
+      value: parseFloat(dashboardData.testStats?.average_score || "0"),
     },
     {
       name: "Last Test Score", 
-      value: parseFloat(((dashboardData.lastTest.score / dashboardData.lastTest.total_score) * 100).toFixed(1)),
+      value: dashboardData.lastTest ? 
+        parseFloat(((dashboardData.lastTest.score / dashboardData.lastTest.total_score) * 100).toFixed(1)) :
+        0,
     },
   ];
 
@@ -131,8 +133,8 @@ const UserDashboard = () => {
             <DialogTrigger asChild>
               <div className="cursor-pointer relative group">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={dashboardData.userDetails.avatar} />
-                  <AvatarFallback>{dashboardData.userDetails.name[0]}</AvatarFallback>
+                  <AvatarImage src={dashboardData.userDetails?.avatar} />
+                  <AvatarFallback>{dashboardData.userDetails?.name?.[0]}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                   <PenSquare className="w-6 h-6 text-white" />
@@ -157,17 +159,17 @@ const UserDashboard = () => {
           </Dialog>
           <div>
             <h2 className="text-2xl font-bold">
-              {dashboardData.userDetails.name}
+              {dashboardData.userDetails?.name}
             </h2>
             <p className="text-gray-600">
-              Reg No: {dashboardData.userDetails.regno}
+              Reg No: {dashboardData.userDetails?.regno}
             </p>
-            {dashboardData.userDetails.trade && (
+            {dashboardData.userDetails?.trade && (
               <p className="text-gray-600">
                 Trade: {dashboardData.userDetails.trade}
               </p>
             )}
-            {dashboardData.userDetails.batch && (
+            {dashboardData.userDetails?.batch && (
               <p className="text-gray-600">
                 Batch: {dashboardData.userDetails.batch}
               </p>
