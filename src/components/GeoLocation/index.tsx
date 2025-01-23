@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/shadcn/ui/button';
 import { Alert, AlertDescription } from '@/shadcn/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 interface Coordinates {
   latitude: number;
@@ -12,6 +12,17 @@ const GeolocationComponent: React.FC = () => {
   const [locationPermission, setLocationPermission] = useState<boolean>(false);
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if ('permissions' in navigator) {
+      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+        if (result.state === 'granted') {
+          setLocationPermission(true);
+        }
+      });
+    }
+  }, []);
 
   const requestLocationPermission = () => {
     if ('geolocation' in navigator) {
@@ -32,6 +43,7 @@ const GeolocationComponent: React.FC = () => {
 
   const getCoordinates = () => {
     if (locationPermission) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setCoordinates({
@@ -39,10 +51,12 @@ const GeolocationComponent: React.FC = () => {
             longitude: position.coords.longitude
           });
           setError(null);
+          setIsLoading(false);
         },
         (err) => {
           setError(err.message);
           setCoordinates(null);
+          setIsLoading(false);
         }
       );
     } else {
@@ -62,10 +76,17 @@ const GeolocationComponent: React.FC = () => {
 
       <Button 
         onClick={getCoordinates} 
-        disabled={!locationPermission}
+        disabled={!locationPermission || isLoading}
         className="w-full"
       >
-        Get Coordinates
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Getting Coordinates...
+          </>
+        ) : (
+          'Get Coordinates'
+        )}
       </Button>
 
       {coordinates && (
