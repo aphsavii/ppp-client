@@ -26,14 +26,22 @@ const GeolocationComponent: React.FC = () => {
 
   const requestLocationPermission = () => {
     if ('geolocation' in navigator) {
+      setIsLoading(true);
       navigator.geolocation.getCurrentPosition(
         () => {
           setLocationPermission(true);
           setError(null);
+          setIsLoading(false);
         },
         (err) => {
           setError(err.message);
           setLocationPermission(false);
+          setIsLoading(false);
+        },
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 0 
         }
       );
     } else {
@@ -44,19 +52,24 @@ const GeolocationComponent: React.FC = () => {
   const getCoordinates = () => {
     if (locationPermission) {
       setIsLoading(true);
+      setError(null);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setCoordinates({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           });
-          setError(null);
           setIsLoading(false);
         },
         (err) => {
           setError(err.message);
           setCoordinates(null);
           setIsLoading(false);
+        },
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 0 
         }
       );
     } else {
@@ -69,9 +82,17 @@ const GeolocationComponent: React.FC = () => {
       <Button 
         onClick={requestLocationPermission}
         className="w-full"
+        disabled={isLoading}
         variant={locationPermission ? "outline" : "default"}
       >
-        {locationPermission ? 'Permission Granted' : 'Request Location Permission'}
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Requesting Permission...
+          </>
+        ) : (
+          locationPermission ? 'Permission Granted' : 'Request Location Permission'
+        )}
       </Button>
 
       <Button 
