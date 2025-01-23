@@ -80,8 +80,9 @@ const  Filters: React.FC<FiltersProps> = ({ filters, setFilters }) => {
             id="filter-topic"
             placeholder="Search by topic"
             value={filters.topic_tags?.join(", ") || ""}
-            onChange={(e) =>
-              setFilters({ ...filters, topic_tags: e.target.value.split(",") })
+            onChange={(e) =>{
+              if(e.target.value.trim() === "") setFilters({ ...filters, topic_tags: [] })
+              setFilters({ ...filters, topic_tags: e.target.value.split(",") })}
             }
             className="w-full sm:w-[200px]"
           />
