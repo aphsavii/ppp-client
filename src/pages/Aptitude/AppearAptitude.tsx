@@ -16,7 +16,13 @@ import { TRADES } from "@/constants";
 import { ApiResponse } from "@/types/Api";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "@/shadcn/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
 
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
 
 const AppearAptitude = () => {
   const [regNo, setRegNo] = useState("");
@@ -26,6 +32,8 @@ const AppearAptitude = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const { toast } = useToast();
 
   interface Answer {
@@ -42,7 +50,31 @@ const AppearAptitude = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load saved answers from sessionStorage on component mount
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          setLocationError(null);
+        },
+        (err) => {
+          setLocationError(err.message);
+          setCoordinates(null);
+        },
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 0 
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by this browser');
+    }
+  }, []);
+
+  useEffect(() => {
     const savedAnswers = sessionStorage.getItem(
       `aptitude-answers-${aptitude?.id}`
     );
@@ -51,26 +83,18 @@ const AppearAptitude = () => {
     }
     document.addEventListener('copy',(e:Event)=>{
       e.preventDefault();
-      navigator.clipboard.writeText("Cheating is not a good Idea. And you are not the only oversmart here.")
-  })
+      navigator.clipboard.writeText("Cheating is not a good idea. Your quiz might be cancelled");
+    });
   }, [aptitude?.id]);
-
-
 
   useEffect(() => {
     if (aptitude?.duration) {
-      // Convert duration from minutes to milliseconds
       const durationMs = aptitude.duration * 60 * 1000;
       const startTime = +aptitude.test_timestamp * 1000;
-
-      // Calculate time left
       const elapsedTime = Date.now() - startTime;
       const timeLeft = durationMs - elapsedTime;
-
       setTimeLeft(timeLeft);
       
-
-      // Start the timer
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = Math.max(0, prev - 1000);
@@ -86,7 +110,6 @@ const AppearAptitude = () => {
     }
   }, [aptitude?.duration, aptitude?.id]);
 
-  // Initialize answers when questions are loaded
   useEffect(() => {
     if (questions.length > 0) {
       const savedAnswers = sessionStorage.getItem(
@@ -94,17 +117,14 @@ const AppearAptitude = () => {
       );
 
       if (savedAnswers) {
-        // If there are saved answers, use them
         setAnswers(JSON.parse(savedAnswers));
       } else {
-        // Initialize answers with default values (0) for each question
         const initialAnswers: Answer[] = questions.map((question) => ({
           question_id: Number(question.id),
-          selected_option: 0, // 0 means not selected, 1-4 will be for options
+          selected_option: 0,
         }));
         setAnswers(initialAnswers);
 
-        // Save initial answers to sessionStorage
         if (aptitude?.id) {
           sessionStorage.setItem(
             `aptitude-answers-${aptitude.id}`,
@@ -122,17 +142,16 @@ const AppearAptitude = () => {
     );
 
     if (existingAnswerIndex >= 0) {
-      newAnswers[existingAnswerIndex].selected_option = selectedOption + 1; // Add 1 to match 1-4 range
+      newAnswers[existingAnswerIndex].selected_option = selectedOption + 1;
     } else {
       newAnswers.push({
         question_id: questionId,
-        selected_option: selectedOption + 1, // Add 1 to match 1-4 range
+        selected_option: selectedOption + 1,
       });
     }
 
     setAnswers(newAnswers);
 
-    // Save to sessionStorage
     if (aptitude?.id) {
       sessionStorage.setItem(
         `aptitude-answers-${aptitude.id}`,
@@ -142,6 +161,15 @@ const AppearAptitude = () => {
   };
 
   const handleGetQuiz = async () => {
+    if (!coordinates) {
+      toast({
+        title: "Error",
+        description: "Please allow location access to proceed",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (localStorage.getItem(`aptitude-${aptiId}-submitted`)) {
       toast({
         title: "Error",
@@ -162,11 +190,16 @@ const AppearAptitude = () => {
     try {
       setLoading(true);
       let response: ApiResponse = await aptitudeService.getAptitudeForUser(
-        { trade, regno: regNo },
+        { 
+          trade, 
+          regno: regNo,
+          lat: coordinates.latitude,
+          long: coordinates.longitude 
+        },
         aptiId
       );
       if(typeof response.data === "string")
-      response.data= JSON.parse(response.data);
+        response.data = JSON.parse(response.data);
       const sortedQuestions = [
         ...response.data.questions.filter(
           (q: Question) => q.question_type === "GENERAL"
@@ -177,16 +210,13 @@ const AppearAptitude = () => {
       ];
       setQuestions(sortedQuestions);
       setAptitude(response.data.aptitude);
-
-      // assume data is in string, parse it then sort it then set it
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to fetch quiz",
         variant: "destructive",
       });
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -211,7 +241,6 @@ const AppearAptitude = () => {
         title: "Success",
         description: "Questions submitted successfully",
       });
-      // Clear sessionStorage after successful submission
       if (aptitude?.id) {
         localStorage.setItem(`aptitude-${aptitude.id}-submitted`, "true");
         localStorage.removeItem(`aptitude-${aptitude.id - 1}-submitted`);
@@ -226,8 +255,7 @@ const AppearAptitude = () => {
         description: error.message || "Failed to submit questions",
         variant: "destructive",
       });
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -282,7 +310,7 @@ const AppearAptitude = () => {
                         type="radio"
                         name={`q${question.id}`}
                         className="w-4 h-4"
-                        checked={savedAnswer?.selected_option === optIdx + 1} // Add 1 to match 1-4 range
+                        checked={savedAnswer?.selected_option === optIdx + 1}
                         onChange={() =>
                           handleAnswerChange(Number(question.id), optIdx)
                         }
@@ -325,8 +353,22 @@ const AppearAptitude = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-md">
+      {!coordinates && !locationError && (
+        <p className="text-sm text-gray-600 text-center mb-4">
+          <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
+          Getting location...
+        </p>
+      )}
+      
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-center">Aptitude Test</h1>
+
+        {locationError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{locationError}</AlertDescription>
+          </Alert>
+        )}
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
@@ -337,12 +379,13 @@ const AppearAptitude = () => {
             value={regNo}
             onChange={(e) => setRegNo(e.target.value)}
             placeholder="Enter your registration number"
+            disabled={!coordinates}
           />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">Select Trade</label>
-          <Select onValueChange={setTrade}>
+          <Select onValueChange={setTrade} disabled={!coordinates}>
             <SelectTrigger>
               <SelectValue placeholder="Select your trade" />
             </SelectTrigger>
@@ -356,10 +399,17 @@ const AppearAptitude = () => {
           </Select>
         </div>
 
-        <Button disabled={loading} onClick={handleGetQuiz}  className="w-full">
-          
-          {loading? "Getting Quiz...":"Get Quiz"}
+        <Button 
+          disabled={loading || !coordinates} 
+          onClick={handleGetQuiz}  
+          className="w-full"
+        >
+          {loading ? "Getting Quiz..." : "Get Quiz"}
         </Button>
+
+        <p className="text-sm text-gray-500 text-center">
+          Note: Location access is required to ensure test integrity. Please allow location access when prompted by your browser.
+        </p>
       </div>
     </div>
   );
