@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/shadcn/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shadcn/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import Confetti from 'react-confetti';
-import { Trophy } from 'lucide-react';
+import Confetti from "react-confetti";
+import { Trophy } from "lucide-react";
 import aptitudeService from "@/api/services/aptitude.service";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shadcn/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 interface Topper {
   regno: string;
@@ -40,27 +46,30 @@ interface TopperCardProps {
 }
 
 const HallOfFame = () => {
-  const [topperData, setTopperData] = useState<TopperData>({ overall: [], trade: [] });
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [topperData, setTopperData] = useState<TopperData>({
+    overall: [],
+    trade: [],
+  });
+  const [showConfetti, setShowConfetti] = useState(false);
   const { toast } = useToast();
   const [pastAptitudes, setPastAptitudes] = useState<PastAptitude[]>([]);
-  const [selectedAptitudeId, setSelectedAptitudeId] = useState<number | null>(null);
+  const [selectedAptitudeId, setSelectedAptitudeId] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const pastAptiResponse: ApiResponse<PastAptitude[]> = await aptitudeService.getPastAptitudes();
+        const pastAptiResponse: ApiResponse<PastAptitude[]> =
+          await aptitudeService.getPastAptitudes();
         setPastAptitudes(pastAptiResponse.data);
 
         if (pastAptiResponse.data && pastAptiResponse.data.length > 0) {
           const mostRecentAptitudeId = pastAptiResponse.data[0].id;
           setSelectedAptitudeId(mostRecentAptitudeId);
-          const toppersResponse: ApiResponse<TopperData> = await aptitudeService.getToppers(mostRecentAptitudeId);
+          const toppersResponse: ApiResponse<TopperData> =
+            await aptitudeService.getToppers(mostRecentAptitudeId);
           setTopperData(toppersResponse.data);
-          toast({
-            title: toppersResponse.message,
-            variant: "success",
-          });
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -71,22 +80,24 @@ const HallOfFame = () => {
         });
       }
     };
+    let timer: any = null;
+    setShowConfetti(true);
+    fetchData().then(() => {
+      timer = setTimeout(() => setShowConfetti(false), 7000);
+    });
 
-    fetchData();
-
-    const timer = setTimeout(() => setShowConfetti(false), 5000);
     return () => clearTimeout(timer);
   }, [toast]);
 
   const handleAptitudeChange = async (aptitudeId: string) => {
     try {
-      const toppersResponse: ApiResponse<TopperData> = await aptitudeService.getToppers(parseInt(aptitudeId));
+      const toppersResponse: ApiResponse<TopperData> =
+        await aptitudeService.getToppers(parseInt(aptitudeId));
       setTopperData(toppersResponse.data);
       setSelectedAptitudeId(parseInt(aptitudeId));
-      toast({
-        title: toppersResponse.message,
-        variant: "success",
-      });
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 7000);
+      return () => clearTimeout(timer);
     } catch (error) {
       console.error("Error fetching toppers:", error);
       toast({
@@ -99,11 +110,17 @@ const HallOfFame = () => {
 
   const TopperCard = ({ topper, index }: TopperCardProps) => (
     <Card className="relative">
-      <div className={`absolute top-0 right-0 p-2 ${
-        index === 0 ? "bg-yellow-500" :
-        index === 1 ? "bg-gray-400" :
-        index === 2 ? "bg-amber-600" : "bg-blue-500"
-      } text-white rounded-bl`}>
+      <div
+        className={`absolute top-0 right-0 p-2 ${
+          index === 0
+            ? "bg-yellow-500"
+            : index === 1
+            ? "bg-gray-400"
+            : index === 2
+            ? "bg-amber-600"
+            : "bg-blue-500"
+        } text-white rounded-bl`}
+      >
         #{topper.rank}
       </div>
       <CardContent className="p-4">
@@ -114,7 +131,9 @@ const HallOfFame = () => {
           </Avatar>
           <div className="space-y-1">
             <h3 className="text-lg font-bold">{topper.name}</h3>
-            <p className="text-gray-600">{topper.trade}/{topper.regno}</p>
+            <p className="text-gray-600">
+              {topper.trade}/{topper.regno}
+            </p>
           </div>
         </div>
       </CardContent>
@@ -122,18 +141,21 @@ const HallOfFame = () => {
   );
 
   // Group trade-wise toppers by trade
-  const tradeGroups = topperData.trade.reduce((groups: {[key: string]: Topper[]}, topper) => {
-    if (!groups[topper.trade]) {
-      groups[topper.trade] = [];
-    }
-    groups[topper.trade].push(topper);
-    return groups;
-  }, {});
+  const tradeGroups = topperData.trade.reduce(
+    (groups: { [key: string]: Topper[] }, topper) => {
+      if (!groups[topper.trade]) {
+        groups[topper.trade] = [];
+      }
+      groups[topper.trade].push(topper);
+      return groups;
+    },
+    {}
+  );
 
   return (
     <div className="container mx-auto p-4 space-y-8">
       {showConfetti && <Confetti />}
-      
+
       {/* Aptitude Selection */}
       <div className="w-full max-w-xs">
         <Select
@@ -146,7 +168,11 @@ const HallOfFame = () => {
           <SelectContent>
             {pastAptitudes.map((aptitude) => (
               <SelectItem key={aptitude.id} value={aptitude.id.toString()}>
-                {aptitude.name} ({new Date(parseInt(aptitude.test_timestamp) * 1000).toLocaleDateString()})
+                {aptitude.name} (
+                {new Date(
+                  parseInt(aptitude.test_timestamp) * 1000
+                ).toLocaleDateString()}
+                )
               </SelectItem>
             ))}
           </SelectContent>

@@ -1,3 +1,4 @@
+import { Github } from "lucide-react"
 function Footer() {
   return (
     <footer className="border-t dark:bg-[#000]">
@@ -7,8 +8,8 @@ function Footer() {
             © {new Date().getFullYear()} T&P SLIET. All rights reserved.
           </div>
           
-          <div className="flex items-center space-x-6">
-            
+          <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
+              <span className="mx-3 inline">GITHUB <Github className="inline mx-1" /></span>  <a href="https://github.com/aphsavii/ppp-client/">Client</a> <a href="https://github.com/aphsavii/ppp-server/">Server</a>
           </div>
         </div>
       </div>

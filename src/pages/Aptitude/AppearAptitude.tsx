@@ -35,6 +35,7 @@ const AppearAptitude = () => {
   const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [cheatingAttempts, setCheatingAttempts] = useState<number>(0);
 
   interface Answer {
     question_id: number;
@@ -50,12 +51,12 @@ const AppearAptitude = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if ('geolocation' in navigator) {
+    if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setCoordinates({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
           });
           setLocationError(null);
         },
@@ -63,14 +64,14 @@ const AppearAptitude = () => {
           setLocationError(err.message);
           setCoordinates(null);
         },
-        { 
-          enableHighAccuracy: true, 
-          timeout: 10000, 
-          maximumAge: 0 
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
         }
       );
     } else {
-      setLocationError('Geolocation is not supported by this browser');
+      setLocationError("Geolocation is not supported by this browser");
     }
   }, []);
 
@@ -81,9 +82,11 @@ const AppearAptitude = () => {
     if (savedAnswers) {
       setAnswers(JSON.parse(savedAnswers));
     }
-    document.addEventListener('copy',(e:Event)=>{
+    document.addEventListener("copy", (e: Event) => {
       e.preventDefault();
-      navigator.clipboard.writeText("Cheating is not a good idea. Your quiz might be cancelled");
+      navigator.clipboard.writeText(
+        "Cheating is not a good idea. Your quiz might be cancelled"
+      );
     });
   }, [aptitude?.id]);
 
@@ -94,7 +97,7 @@ const AppearAptitude = () => {
       const elapsedTime = Date.now() - startTime;
       const timeLeft = durationMs - elapsedTime;
       setTimeLeft(timeLeft);
-      
+
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = Math.max(0, prev - 1000);
@@ -134,6 +137,42 @@ const AppearAptitude = () => {
       }
     }
   }, [questions, aptitude?.id]);
+
+  useEffect(() => {
+    if (questions.length <= 0) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        setCheatingAttempts((prev) => prev + 1);
+      } else {
+        if (cheatingAttempts > 3) {
+          toast({
+            title: "Warning",
+            description:
+              "You have been caught cheating. Your quiz has been cancelled.",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            handleSubmitQuestions();
+          }, 3000);
+        } else {
+          toast({
+            title: "Cheating Warning",
+            description:
+              "You have been caught cheating. Further attempts will result in quiz cancellation.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup function
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [questions, cheatingAttempts]);
 
   const handleAnswerChange = (questionId: number, selectedOption: number) => {
     const newAnswers = [...answers];
@@ -186,19 +225,19 @@ const AppearAptitude = () => {
       });
       return;
     }
-    
+
     try {
       setLoading(true);
       let response: ApiResponse = await aptitudeService.getAptitudeForUser(
-        { 
-          trade, 
+        {
+          trade,
           regno: regNo,
           lat: coordinates.latitude,
-          long: coordinates.longitude 
+          long: coordinates.longitude,
         },
         aptiId
       );
-      if(typeof response.data === "string")
+      if (typeof response.data === "string")
         response.data = JSON.parse(response.data);
       const sortedQuestions = [
         ...response.data.questions.filter(
@@ -248,7 +287,6 @@ const AppearAptitude = () => {
         sessionStorage.removeItem(`aptitude-start-${aptitude.id}`);
       }
       navigate("/aptitudes");
-      
     } catch (error: any) {
       toast({
         title: "Error",
@@ -359,7 +397,7 @@ const AppearAptitude = () => {
           Getting location...
         </p>
       )}
-      
+
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-center">Aptitude Test</h1>
 
@@ -399,16 +437,17 @@ const AppearAptitude = () => {
           </Select>
         </div>
 
-        <Button 
-          disabled={loading || !coordinates} 
-          onClick={handleGetQuiz}  
+        <Button
+          disabled={loading || !coordinates}
+          onClick={handleGetQuiz}
           className="w-full"
         >
           {loading ? "Getting Quiz..." : "Get Quiz"}
         </Button>
 
         <p className="text-sm text-gray-500 text-center">
-          Note: Location access is required to ensure test integrity. Please allow location access when prompted by your browser.
+          Note: Location access is required to ensure test integrity. Please
+          allow location access when prompted by your browser.
         </p>
       </div>
     </div>
