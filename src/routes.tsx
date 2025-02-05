@@ -26,6 +26,7 @@ const ForgotPass = React.lazy(() => import("./pages/Login/ForgotPass"));
 const UserDashboard = React.lazy(() => import('./pages/UserDashboard/UserDashboard'));
 const HallOfFame = React.lazy(() => import('./pages/HallOfFame/index'));
 const GeolocationComponent = React.lazy(() => import('./components/GeoLocation/index'));
+const BlockedUsers = React.lazy(() => import('./pages/admin/BlockedUsers'));
 
 const Routes = createRoutesFromElements(
   <Route path="/" element={<Layout />}>
@@ -39,6 +40,7 @@ const Routes = createRoutesFromElements(
     <Route path="admin/aptitudes" element={<Dashboard />} />
     <Route path="admin/questions" element={<QuestionSet />} />
     <Route path="admin/aptitude/:id" element={<Aptitude />} />
+    <Route path="admin/blocked-users" element={<BlockedUsers />} />
 
     {/* User Routes */}
     <Route path="/aptitudes" element={<Aptitudes />}></Route>

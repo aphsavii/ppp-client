@@ -21,10 +21,19 @@ class UserService {
         return axiosInstance.post('/user/forgot-password', { regno, otp, password }).then(res => res.data).catch(err => Promise.reject(err));
     }
     getUserDashBoard() {
-        return  axiosAuthInstance.get('/user/dashboard').then(res => res.data).catch(err => Promise.reject(err));
+        return axiosAuthInstance.get('/user/dashboard').then(res => res.data).catch(err => Promise.reject(err));
     }
     updateAvatar(formData: FormData) {
         return axiosAuthInstance.post('/user/update-avatar', formData).then(res => res.data).catch(err => Promise.reject(err));
+    }
+    blockUsers(users: string[]) {
+        return axiosAuthInstance.post('/user/block', { users }).then(res => res.data).catch(err => Promise.reject(err.response.data));
+    }
+    unblockUsers(users: string[]) {
+        return axiosAuthInstance.post('/user/unblock', { users }).then(res => res.data).catch(err => Promise.reject(err.response.data));
+    }
+    getBlockedUsers(trade?: string) {
+        return axiosAuthInstance.get('/user/blocked' + `${trade ? '?trade=' + trade : ''}`).then(res => res.data).catch(err => Promise.reject(err.response.data));
     }
 }
 

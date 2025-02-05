@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { removeLocalAuth } from "@/helpers/local-auth";
 import { logout } from "@/redux/slices/auth";
 import { useNavigate } from "react-router-dom";
-import { Trophy } from "lucide-react";
+import { Trophy, Lock } from "lucide-react";
 
 const links = [
   {
@@ -46,6 +46,12 @@ const links = [
     title: "Achievers",
     href: "/hall-of-fame",
     icon: Trophy,
+    admin: true
+  },
+  {
+    title: "Blocked Users",
+    href: "/admin/blocked-users",
+    icon: Lock,
     admin: true
   }
 ]

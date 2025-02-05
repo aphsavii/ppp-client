@@ -74,7 +74,12 @@ function Dashboard() {
   }, []);
 
   const handleCreateTest = async () => {
-    if (!formData.name || !formData.test_timestamp || !formData.duration || !formData.total_questions) {
+    if (
+      !formData.name ||
+      !formData.test_timestamp ||
+      !formData.duration ||
+      !formData.total_questions
+    ) {
       toast({
         title: "Error",
         description: "All fields are required",
@@ -83,7 +88,9 @@ function Dashboard() {
       return;
     }
     try {
-      const timestamp = Math.floor(new Date(formData.test_timestamp).getTime() / 1000);
+      const timestamp = Math.floor(
+        new Date(formData.test_timestamp).getTime() / 1000
+      );
       await aptitudeService.createAptitude({
         ...formData,
         test_timestamp: timestamp.toString(),
@@ -102,12 +109,22 @@ function Dashboard() {
       });
     } finally {
       setShowCreateDialog(false);
-      setFormData({ name: "", test_timestamp: "", duration: 0, total_questions: 0 });
+      setFormData({
+        name: "",
+        test_timestamp: "",
+        duration: 0,
+        total_questions: 0,
+      });
     }
   };
 
   const handleEditTest = async () => {
-    if (!selectedTest || !formData.name || !formData.test_timestamp || !formData.duration) {
+    if (
+      !selectedTest ||
+      !formData.name ||
+      !formData.test_timestamp ||
+      !formData.duration
+    ) {
       toast({
         title: "Error",
         description: "All fields are required",
@@ -116,7 +133,9 @@ function Dashboard() {
       return;
     }
     try {
-      const timestamp = Math.floor(new Date(formData.test_timestamp).getTime() / 1000);
+      const timestamp = Math.floor(
+        new Date(formData.test_timestamp).getTime() / 1000
+      );
       await aptitudeService.updateAptitude({
         ...formData,
         id: selectedTest.id,
@@ -137,7 +156,12 @@ function Dashboard() {
     } finally {
       setShowEditDialog(false);
       setSelectedTest(null);
-      setFormData({ name: "", test_timestamp: "", duration: 0, total_questions: 0 });
+      setFormData({
+        name: "",
+        test_timestamp: "",
+        duration: 0,
+        total_questions: 0,
+      });
     }
   };
 
@@ -165,14 +189,16 @@ function Dashboard() {
   const openEditDialog = (test: Aptitude) => {
     // Convert Unix timestamp to date string without timezone offset
     const localDate = new Date(parseInt(test.test_timestamp) * 1000);
-    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+    const utcDate = new Date(
+      localDate.getTime() - localDate.getTimezoneOffset() * 60000
+    );
     const formattedDate = utcDate.toISOString().slice(0, 16);
-    
+
     setFormData({
       name: test.name,
       test_timestamp: formattedDate,
       duration: test.duration,
-      total_questions: 0
+      total_questions: 0,
     });
     setSelectedTest(test);
     setShowEditDialog(true);
@@ -304,14 +330,12 @@ function Dashboard() {
                   tests.map((test, index) => (
                     <TableRow key={index} className="hover:bg-muted/50">
                       <TableCell className="font-medium">
-                      <Link to={`/admin/aptitude/${test.id}`}>
-                        {test.name}
-                      </Link>
-                        </TableCell>
-                     <TableCell>
-                        {
-                          timestampToDate(test.test_timestamp)
-                        }
+                        <Link to={`/admin/aptitude/${test.id}`}>
+                          {test.name}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {timestampToDate(test.test_timestamp)}
                       </TableCell>
                       <TableCell>{test.duration}</TableCell>
                       <TableCell>
