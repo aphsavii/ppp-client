@@ -24,9 +24,10 @@ const AptitudeResult = React.lazy(() => import("./pages/Aptitude/AptitudeResult"
 const Aptitudes = React.lazy(() => import("./pages/Aptitude/Aptitudes"));
 const ForgotPass = React.lazy(() => import("./pages/Login/ForgotPass"));
 const UserDashboard = React.lazy(() => import('./pages/UserDashboard/UserDashboard'));
-const HallOfFame = React.lazy(() => import('./pages/HallOfFame/index'));
-const GeolocationComponent = React.lazy(() => import('./components/GeoLocation/index'));
+const HallOfFame = React.lazy(() => import('./pages/HallOfFame'));
+const GeolocationComponent = React.lazy(() => import('./components/GeoLocation'));
 const BlockedUsers = React.lazy(() => import('./pages/admin/BlockedUsers'));
+const JSPRS = React.lazy(() => import('./pages/JSPRS'));
 
 const Routes = createRoutesFromElements(
   <Route path="/" element={<Layout />}>
@@ -49,6 +50,7 @@ const Routes = createRoutesFromElements(
     <Route path="/user/dashboard" element={<UserDashboard />} />
     <Route path="/hall-of-fame" element={<HallOfFame />} />
     <Route path="/geo" element={<GeolocationComponent />} />
+    <Route path="/jsprs" element={<JSPRS />} />
 
 
     {/* {404 Route} */}

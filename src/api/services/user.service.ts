@@ -35,6 +35,10 @@ class UserService {
     getBlockedUsers(trade?: string) {
         return axiosAuthInstance.get('/user/blocked' + `${trade ? '?trade=' + trade : ''}`).then(res => res.data).catch(err => Promise.reject(err.response.data));
     }
+
+    getJsprs(batch: string) {
+        return axiosAuthInstance.get('/user/jsprs?batch=' + batch).then(res => res.data).catch(err => Promise.reject(err.response.data));
+    }
 }
 
 export default new UserService();

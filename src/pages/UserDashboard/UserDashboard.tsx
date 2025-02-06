@@ -133,7 +133,7 @@ const UserDashboard = () => {
             <DialogTrigger asChild>
               <div className="cursor-pointer relative group">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={dashboardData.userDetails?.avatar} />
+                  <AvatarImage src={dashboardData.userDetails?.avatar} className="object-cover" />
                   <AvatarFallback>{dashboardData.userDetails?.name?.[0]}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">

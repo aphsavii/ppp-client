@@ -53,6 +53,18 @@ const links = [
     href: "/admin/blocked-users",
     icon: Lock,
     admin: true
+  },
+  {
+    title: "JSPRS",
+    href: "/jsprs",
+    icon: User,
+    admin: false
+  },
+  {
+    title: "JSPRS",
+    href: "/jsprs",
+    icon: User,
+    admin: true
   }
 ]
 
