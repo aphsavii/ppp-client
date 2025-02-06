@@ -57,7 +57,7 @@ function Signup() {
       console.log(error);
       toast({
         title: "Error",
-        description: "Failed to create account",
+        description: (error as Error).message,
         variant: "destructive",
       });
     }
