@@ -16,6 +16,7 @@ function Layout() {
   const dispatch = useDispatch();
   const location = useLocation();
   const currentPath = location.pathname;
+  console.log(currentPath);
   useEffect(() => {
     if(currentPath === "/login" || currentPath === "/register" || currentPath === "/forgot-password" || currentPath.includes("/aptitude/appear/")) return;
     if(sessionStorage.getItem("authState") === null && localStorage.getItem("authState") === null) navigate('login');
@@ -36,7 +37,6 @@ function Layout() {
           };
           setLocalAuth(authState);
           dispatch(setAuth(authState));
-          navigate("/");
         } else {
           navigate("/login");
         }
