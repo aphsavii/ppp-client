@@ -54,7 +54,7 @@ function BlockedUsers() {
     try {
       const response: ApiResponse = await userService.getBlockedUsers(
         selectedTrade
-      ); // Pass selected trade to API
+      ); // Pass selected trade to API 
       if (response.success) {
         setBlockedUsers(response.data);
         const initialToggles = response.data.reduce(
@@ -65,6 +65,7 @@ function BlockedUsers() {
           {}
         );
         setToggleStates(initialToggles);
+
       }
     } catch (error) {
       toast({
@@ -195,6 +196,8 @@ function BlockedUsers() {
             <SelectItem value="10">10 rows</SelectItem>
             <SelectItem value="20">20 rows</SelectItem>
             <SelectItem value="50">50 rows</SelectItem>
+            <SelectItem value="100">100 rows</SelectItem>
+
           </SelectContent>
         </Select>
 
