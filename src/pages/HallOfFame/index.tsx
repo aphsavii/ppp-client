@@ -126,7 +126,7 @@ const HallOfFame = () => {
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={topper.avatar} alt={topper.name} />
+            <AvatarImage src={topper.avatar} alt={topper.name} className="object-cover" />
             <AvatarFallback>{topper.name[0]}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
