@@ -158,7 +158,7 @@ function Aptitudes() {
                         ) : status === "completed" ? (
                           <Link to={`/aptitude/response/${test.id}`}>
                             <Button size="sm" variant="outline">
-                              View Result
+                              View Score
                             </Button>
                           </Link>
                         ) : (
