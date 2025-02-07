@@ -138,6 +138,7 @@ const AddQuestionDialog: React.FC = () => {
         format: "text",
         img: null,
       });
+      setSelectedTopics([]);
       toast({
         title: "Success",
         description: "Question added successfully",
