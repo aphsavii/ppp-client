@@ -84,11 +84,13 @@ const AddQuestionDialog: React.FC = () => {
 
   const handleAddQuestion = async () => {
     // validate
+    console.log("hi");
+    console.log(newQuestion);
     if (
       !newQuestion.topic_tags ||
       !newQuestion.options.every((option) => option.trim()) ||
       newQuestion.correct_option < 0 ||
-      newQuestion.correct_option >= newQuestion.options.length ||
+      newQuestion.correct_option > newQuestion.options.length ||
       (newQuestion.format === "text" && !newQuestion.description) ||
       (newQuestion.format === "img" && !newQuestion.img) ||
       !newQuestion.question_type ||
@@ -105,6 +107,7 @@ const AddQuestionDialog: React.FC = () => {
 
     try {
       setIsSubmitting(true);
+
       // Create FormData to handle file upload
       const formData = new FormData();
       (Object.keys(newQuestion) as (keyof typeof newQuestion)[]).forEach(
