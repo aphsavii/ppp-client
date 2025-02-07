@@ -110,7 +110,7 @@ export default function QuestionSet() {
 
   useEffect(() => {
     // Fetch questions data
-    fetchQuestions(page, 10);
+    fetchQuestions(page, 100);
     getUpcomingAptitudes();
   }, [page, filters]);
 

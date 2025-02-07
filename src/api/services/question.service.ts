@@ -3,7 +3,7 @@ import { QuestionFilters } from "@/types/Question";
 
 class QuestionService {
     public getQuestions(page: number, limit: number, filters: QuestionFilters) {
-        return axiosAuthInstance.post('/question/get?page=' + page + 'limit=' + limit, filters).then
+        return axiosAuthInstance.post('/question/get?page=' + page + '&limit=' + limit, filters).then
             (res => res.data).catch(err => Promise.reject(err.response.data));
     }
 
