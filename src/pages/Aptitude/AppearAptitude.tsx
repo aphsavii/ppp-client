@@ -66,7 +66,7 @@ const AppearAptitude = () => {
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 20000,
           maximumAge: 0,
         }
       );
@@ -85,7 +85,7 @@ const AppearAptitude = () => {
     document.addEventListener("copy", (e: Event) => {
       e.preventDefault();
       navigator.clipboard.writeText(
-        "Cheating is not a good idea. Your quiz might be cancelled"
+        "Cheating is not a good idea. Your quiz might get cancelled..."
       );
     });
   }, [aptitude?.id]);
