@@ -63,9 +63,10 @@ const AddQuestionDialog: React.FC = () => {
 
   useEffect(() => {
     if (topicInput.trim()) {
-      const filtered = topics.filter(topic => 
-        topic.toLowerCase().includes(topicInput.toLowerCase()) &&
-        !selectedTopics.includes(topic)
+      const filtered = topics.filter(
+        (topic) =>
+          topic.toLowerCase().includes(topicInput.toLowerCase()) &&
+          !selectedTopics.includes(topic)
       );
       setFilteredTopics(filtered);
     } else {
@@ -75,9 +76,9 @@ const AddQuestionDialog: React.FC = () => {
 
   useEffect(() => {
     // Update newQuestion.topic_tags whenever selectedTopics changes
-    setNewQuestion(prev => ({
+    setNewQuestion((prev) => ({
       ...prev,
-      topic_tags: selectedTopics.join(',')
+      topic_tags: selectedTopics.join(","),
     }));
   }, [selectedTopics]);
 
@@ -98,6 +99,7 @@ const AddQuestionDialog: React.FC = () => {
         description: "Please fill all the fields",
         variant: "destructive",
       });
+      console.log(newQuestion);
       return;
     }
 
@@ -123,6 +125,16 @@ const AddQuestionDialog: React.FC = () => {
       const res = await questionService.addQuestion(formData);
       console.log(res);
       // setQuestions([...questions, res.data]);
+      setNewQuestion({ 
+        description: "",
+        topic_tags: "",
+        question_type: "GENERAL",
+        difficulty_level: 1,
+        options: ["", "", "", ""],
+        correct_option: 0,
+        format: "text",
+        img: null,
+      });
       toast({
         title: "Success",
         description: "Question added successfully",
@@ -247,13 +259,13 @@ const AddQuestionDialog: React.FC = () => {
                   value={topicInput}
                   onChange={(e) => setTopicInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && topicInput.trim()) {
+                    if (e.key === "Enter" && topicInput.trim()) {
                       e.preventDefault();
                       const newTopic = topicInput.trim();
                       if (!selectedTopics.includes(newTopic)) {
                         setSelectedTopics([...selectedTopics, newTopic]);
                       }
-                      setTopicInput('');
+                      setTopicInput("");
                     }
                   }}
                 />
@@ -265,7 +277,7 @@ const AddQuestionDialog: React.FC = () => {
                         className="px-2 py-1 text-sm bg-secondary rounded-md hover:bg-secondary/80"
                         onClick={() => {
                           setSelectedTopics([...selectedTopics, topic]);
-                          setTopicInput('');
+                          setTopicInput("");
                         }}
                       >
                         {topic}
@@ -277,14 +289,16 @@ const AddQuestionDialog: React.FC = () => {
               {selectedTopics.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {selectedTopics.map((topic, index) => (
-                    <span 
-                      key={index} 
+                    <span
+                      key={index}
                       className="px-2 py-1 text-sm bg-secondary rounded-md flex items-center gap-2"
                     >
                       {topic}
                       <button
                         onClick={() => {
-                          setSelectedTopics(selectedTopics.filter((_, i) => i !== index));
+                          setSelectedTopics(
+                            selectedTopics.filter((_, i) => i !== index)
+                          );
                         }}
                         className="text-xs hover:text-destructive"
                       >
