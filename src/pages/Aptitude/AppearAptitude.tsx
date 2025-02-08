@@ -10,6 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shadcn/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shadcn/ui/dialog";
 import { Question } from "@/types/Question";
 import { Aptitude } from "@/types/Aptitude";
 import { TRADES } from "@/constants";
@@ -36,6 +44,7 @@ const AppearAptitude = () => {
   const [locationError, setLocationError] = useState<string | null>(null);
   const { toast } = useToast();
   const [cheatingAttempts, setCheatingAttempts] = useState<number>(0);
+  const [showSubmitDialog, setShowSubmitDialog] = useState(false);
 
   interface Answer {
     question_id: number;
@@ -295,6 +304,7 @@ const AppearAptitude = () => {
       });
     } finally {
       setLoading(false);
+      setShowSubmitDialog(false);
     }
   };
 
@@ -370,9 +380,27 @@ const AppearAptitude = () => {
             Previous
           </Button>
           {isLastPage ? (
-            <Button disabled={loading} onClick={handleSubmitQuestions}>
-              {loading ? "Submitting..." : "Submit"}
-            </Button>
+            <Dialog open={showSubmitDialog} onOpenChange={setShowSubmitDialog}>
+              <DialogTrigger asChild>
+                <Button disabled={loading}>Submit</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Confirm Submission</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to submit your answers? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-end gap-4">
+                  <Button variant="outline" onClick={() => setShowSubmitDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button disabled={loading} onClick={handleSubmitQuestions}>
+                    {loading ? "Submitting..." : "Confirm Submit"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           ) : (
             <Button
               onClick={() => setCurrentPage((prev) => prev + 1)}
