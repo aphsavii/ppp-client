@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { removeLocalAuth } from "@/helpers/local-auth";
 import { logout } from "@/redux/slices/auth";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Lock } from "lucide-react";
+import { Trophy, Lock, Key } from "lucide-react";
 
 const links = [
   {
@@ -64,6 +64,18 @@ const links = [
     title: "JSPRS",
     href: "/jsprs",
     icon: User,
+    admin: true
+  },
+  {
+    title: "Change Password",
+    href: "/change-password",
+    icon: Key,
+    admin: false
+  },
+  {
+    title: "Change Password",
+    href: "/change-password",
+    icon: Key,
     admin: true
   }
 ]

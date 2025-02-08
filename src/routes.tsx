@@ -28,6 +28,7 @@ const HallOfFame = React.lazy(() => import('./pages/HallOfFame'));
 const GeolocationComponent = React.lazy(() => import('./components/GeoLocation'));
 const BlockedUsers = React.lazy(() => import('./pages/admin/BlockedUsers'));
 const JSPRS = React.lazy(() => import('./pages/JSPRS'));
+const ChangePassword = React.lazy(() => import('./pages/ChangePassword/'));
 
 const Routes = createRoutesFromElements(
   <Route path="/" element={<Layout />}>
@@ -51,6 +52,7 @@ const Routes = createRoutesFromElements(
     <Route path="/hall-of-fame" element={<HallOfFame />} />
     <Route path="/geo" element={<GeolocationComponent />} />
     <Route path="/jsprs" element={<JSPRS />} />
+    <Route path="/change-password" element={<ChangePassword />} />
 
 
     {/* {404 Route} */}
