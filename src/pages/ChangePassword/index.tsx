@@ -8,8 +8,7 @@ import { Input } from "@/shadcn/ui/input";
 import { Button } from "@/shadcn/ui/button";
 import { Alert, AlertDescription } from "@/shadcn/ui/alert";
 import { Eye, EyeOff, Lock } from "lucide-react";
-import { useToast, toast } from "@/hooks/use-toast";
-import { ApiResponse } from "@/types/Api";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChangePasswordProps {
   regno: string;
@@ -88,7 +87,7 @@ const ChangePassword = () => {
     }
 
     try {
-      const response: ApiResponse = await userService.changePassword(
+      await userService.changePassword(
         changePassword.regno,
         changePassword.oldPassword,
         changePassword.newPassword
