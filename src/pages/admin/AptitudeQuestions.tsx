@@ -150,7 +150,7 @@ const AptitudeQuestions = () => {
                 <div
                   key={optionIndex}
                   className={`p-3 rounded-lg border ${
-                    optionIndex === question.correct_option
+                    optionIndex+1 === question.correct_option
                       ? "bg-green-50 border-green-200"
                       : "bg-gray-50"
                   }`}
