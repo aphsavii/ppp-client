@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import aptitudeService from "@/api/services/aptitude.service";
@@ -24,13 +25,6 @@ import { TRADES } from "@/constants";
 import { ApiResponse } from "@/types/Api";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Alert, AlertDescription } from "@/shadcn/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
-
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
 
 const AppearAptitude = () => {
   const [regNo, setRegNo] = useState("");
@@ -40,11 +34,10 @@ const AppearAptitude = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null);
   const { toast } = useToast();
   const [cheatingAttempts, setCheatingAttempts] = useState<number>(0);
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   interface Answer {
     question_id: number;
@@ -59,45 +52,40 @@ const AppearAptitude = () => {
 
   const navigate = useNavigate();
 
+  // Load saved registration and trade data on mount
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCoordinates({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-          setLocationError(null);
-        },
-        (err) => {
-          setLocationError(err.message);
-          setCoordinates(null);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setLocationError("Geolocation is not supported by this browser");
+    const savedRegNo = sessionStorage.getItem(`aptitude-regno-${aptiId}`);
+    const savedTrade = sessionStorage.getItem(`aptitude-trade-${aptiId}`);
+    
+    if (savedRegNo && savedTrade) {
+      setRegNo(savedRegNo);
+      setTrade(savedTrade);
+      // Automatically fetch quiz if we have saved credentials
+      handleGetQuiz(savedRegNo, savedTrade);
     }
-  }, []);
+  }, [aptiId]);
 
   useEffect(() => {
-    const savedAnswers = sessionStorage.getItem(
-      `aptitude-answers-${aptitude?.id}`
-    );
+    if (!aptitude?.id || initialized) return;
+
+    const savedAnswers = sessionStorage.getItem(`aptitude-answers-${aptitude.id}`);
     if (savedAnswers) {
-      setAnswers(JSON.parse(savedAnswers));
+      const parsedAnswers = JSON.parse(savedAnswers);
+      if (Array.isArray(parsedAnswers) && parsedAnswers.length > 0) {
+        setAnswers(parsedAnswers);
+      }
     }
+    setInitialized(true);
+  }, [aptitude?.id, initialized]);
+
+  useEffect(() => {
     document.addEventListener("copy", (e: Event) => {
       e.preventDefault();
       navigator.clipboard.writeText(
         "Cheating is not a good idea. Your quiz might get cancelled..."
       );
     });
-  }, [aptitude?.id]);
+  }, []);
 
   useEffect(() => {
     if (aptitude?.duration) {
@@ -110,9 +98,12 @@ const AppearAptitude = () => {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           const newTime = Math.max(0, prev - 1000);
-          if (newTime === 0) {
-            clearInterval(timer);
-            handleSubmitQuestions();
+          if (newTime <= 30000) {
+            toast({
+              title: "Warning",
+              description: "Submit quiz now it might take some time to process",
+              variant: "destructive",
+            });
           }
           return newTime;
         });
@@ -120,30 +111,52 @@ const AppearAptitude = () => {
 
       return () => clearInterval(timer);
     }
-  }, [aptitude?.duration, aptitude?.id]);
+  }, [aptitude?.duration, aptitude?.test_timestamp]);
 
   useEffect(() => {
     if (questions.length > 0) {
-      const savedAnswers = sessionStorage.getItem(
-        `aptitude-answers-${aptitude?.id}`
-      );
+      // Initialize answers when questions are loaded
+      const savedAnswers = sessionStorage.getItem(`aptitude-answers-${aptitude?.id}`);
+      let initialAnswers: Answer[];
 
       if (savedAnswers) {
-        setAnswers(JSON.parse(savedAnswers));
+        try {
+          initialAnswers = JSON.parse(savedAnswers);
+          // Validate that all questions have corresponding answers
+          const allQuestionsHaveAnswers = questions.every(question =>
+            initialAnswers.some(answer => answer.question_id === Number(question.id))
+          );
+          
+          if (!allQuestionsHaveAnswers) {
+            // If some questions don't have answers, create complete initial state
+            initialAnswers = questions.map(question => ({
+              question_id: Number(question.id),
+              selected_option: 0,
+            }));
+          }
+        } catch (e) {
+          // If parsing fails, create new initial answers
+          initialAnswers = questions.map(question => ({
+            question_id: Number(question.id),
+            selected_option: 0,
+          }));
+        }
       } else {
-        const initialAnswers: Answer[] = questions.map((question) => ({
+        // If no saved answers, create new initial answers
+        initialAnswers = questions.map(question => ({
           question_id: Number(question.id),
           selected_option: 0,
         }));
-        setAnswers(initialAnswers);
-
-        if (aptitude?.id) {
-          sessionStorage.setItem(
-            `aptitude-answers-${aptitude.id}`,
-            JSON.stringify(initialAnswers)
-          );
-        }
       }
+
+      setAnswers(initialAnswers);
+      if (aptitude?.id) {
+        sessionStorage.setItem(
+          `aptitude-answers-${aptitude.id}`,
+          JSON.stringify(initialAnswers)
+        );
+      }
+      setInitialized(true);
     }
   }, [questions, aptitude?.id]);
 
@@ -177,46 +190,34 @@ const AppearAptitude = () => {
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Cleanup function
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [questions, cheatingAttempts]);
 
-  const handleAnswerChange = (questionId: number, selectedOption: number) => {
-    const newAnswers = [...answers];
-    const existingAnswerIndex = newAnswers.findIndex(
-      (a) => a.question_id === questionId
-    );
-
-    if (existingAnswerIndex >= 0) {
-      newAnswers[existingAnswerIndex].selected_option = selectedOption + 1;
-    } else {
-      newAnswers.push({
-        question_id: questionId,
-        selected_option: selectedOption + 1,
-      });
-    }
-
-    setAnswers(newAnswers);
-
-    if (aptitude?.id) {
-      sessionStorage.setItem(
-        `aptitude-answers-${aptitude.id}`,
-        JSON.stringify(newAnswers)
+ const handleAnswerChange = (questionId: number, selectedOption: number) => {
+    setAnswers(prevAnswers => {
+      const newAnswers = prevAnswers.map(answer =>
+        answer.question_id === questionId
+          ? { ...answer, selected_option: selectedOption + 1 }
+          : answer
       );
-    }
+
+      // Save to session storage immediately after update
+      if (aptitude?.id) {
+        sessionStorage.setItem(
+          `aptitude-answers-${aptitude.id}`,
+          JSON.stringify(newAnswers)
+        );
+      }
+
+      return newAnswers;
+    });
   };
 
-  const handleGetQuiz = async () => {
-    if (!coordinates) {
-      toast({
-        title: "Error",
-        description: "Please allow location access to proceed",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleGetQuiz = async (savedRegNo?: string, savedTrade?: string) => {
+    const regNoToUse = savedRegNo || regNo;
+    const tradeToUse = savedTrade || trade;
 
     if (localStorage.getItem(`aptitude-${aptiId}-submitted`)) {
       toast({
@@ -226,7 +227,8 @@ const AppearAptitude = () => {
       });
       return;
     }
-    if (!regNo || !trade) {
+    
+    if (!regNoToUse || !tradeToUse) {
       toast({
         title: "Error",
         description: "Please fill all fields",
@@ -239,15 +241,19 @@ const AppearAptitude = () => {
       setLoading(true);
       let response: ApiResponse = await aptitudeService.getAptitudeForUser(
         {
-          trade,
-          regno: regNo,
-          lat: coordinates.latitude,
-          long: coordinates.longitude,
+          trade: tradeToUse,
+          regno: regNoToUse,
         },
         aptiId
       );
+      
+      // Save credentials to sessionStorage
+      sessionStorage.setItem(`aptitude-regno-${aptiId}`, regNoToUse);
+      sessionStorage.setItem(`aptitude-trade-${aptiId}`, tradeToUse);
+
       if (typeof response.data === "string")
         response.data = JSON.parse(response.data);
+      
       const sortedQuestions = [
         ...response.data.questions.filter(
           (q: Question) => q.question_type === "GENERAL"
@@ -277,7 +283,28 @@ const AppearAptitude = () => {
   const isLastPage =
     currentPage === Math.ceil(questions.length / questionsPerPage) - 1;
 
-  const handleSubmitQuestions = async () => {
+   const handleSubmitQuestions = async () => {
+    if (!answers || answers.length === 0) {
+      toast({
+        title: "Error",
+        description: "No answers to submit",
+        variant: "destructive",
+      });
+      console.log(answers);
+      return;
+    }
+
+    // Validate that we have at least some answers
+    const hasAnswers = answers.some(answer => answer.selected_option !== 0);
+    if (!hasAnswers) {
+      toast({
+        title: "Error",
+        description: "Please answer at least one question before submitting",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await aptitudeService.submitAptitude(
@@ -285,16 +312,22 @@ const AppearAptitude = () => {
         Number(aptitude?.id),
         answers
       );
+      
       toast({
         title: "Success",
         description: "Questions submitted successfully",
       });
+
       if (aptitude?.id) {
+        // Clear all storage related to this aptitude
         localStorage.setItem(`aptitude-${aptitude.id}-submitted`, "true");
         localStorage.removeItem(`aptitude-${aptitude.id - 1}-submitted`);
         sessionStorage.removeItem(`aptitude-answers-${aptitude.id}`);
         sessionStorage.removeItem(`aptitude-start-${aptitude.id}`);
+        sessionStorage.removeItem(`aptitude-regno-${aptiId}`);
+        sessionStorage.removeItem(`aptitude-trade-${aptiId}`);
       }
+      
       navigate("/aptitudes");
     } catch (error: any) {
       toast({
@@ -419,22 +452,11 @@ const AppearAptitude = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-md">
-      {!coordinates && !locationError && (
-        <p className="text-sm text-gray-600 text-center mb-4">
-          <Loader2 className="inline mr-2 h-4 w-4 animate-spin" />
-          Getting location...
-        </p>
-      )}
+
 
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-center">Aptitude Test</h1>
 
-        {locationError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{locationError}</AlertDescription>
-          </Alert>
-        )}
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">
@@ -445,13 +467,12 @@ const AppearAptitude = () => {
             value={regNo}
             onChange={(e) => setRegNo(e.target.value)}
             placeholder="Enter your registration number"
-            disabled={!coordinates}
           />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium">Select Trade</label>
-          <Select onValueChange={setTrade} disabled={!coordinates}>
+          <Select onValueChange={setTrade} >
             <SelectTrigger>
               <SelectValue placeholder="Select your trade" />
             </SelectTrigger>
@@ -466,8 +487,8 @@ const AppearAptitude = () => {
         </div>
 
         <Button
-          disabled={loading || !coordinates}
-          onClick={handleGetQuiz}
+          disabled={loading}
+          onClick={() => handleGetQuiz()}
           className="w-full"
         >
           {loading ? "Getting Quiz..." : "Get Quiz"}

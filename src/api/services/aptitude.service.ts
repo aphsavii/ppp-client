@@ -44,8 +44,6 @@ class AptitudeService {
     public getAptitudeForUser(data: {
         trade: string,
         regno: string,
-        lat: number,
-        long: number
     }, aptiId: any) {
         return axiosAuthInstance.post('/aptitude/appear/' + aptiId, data).then(res => res.data).catch(err => (Promise.reject(err.response.data)));
     }
