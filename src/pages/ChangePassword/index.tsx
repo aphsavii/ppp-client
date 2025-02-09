@@ -35,6 +35,7 @@ const ChangePassword = () => {
   const auth: AuthState = useSelector((state: rootState) => state.auth);
   const isAdmin = auth.isAdmin;
 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChangePassword({
       ...changePassword,
@@ -52,6 +53,7 @@ const ChangePassword = () => {
   };
 
   const validateForm = () => {
+    if(!isAdmin ) changePassword.regno = auth?.user?.regno || "";
     if (!changePassword.regno.trim()) {
       setError("Registration number is required");
       return false;
