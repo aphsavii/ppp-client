@@ -43,6 +43,10 @@ class UserService {
     changePassword(regno: String, oldPassword: string, newPassword: string) {
         return axiosAuthInstance.post('/user/change-password', { regno, oldPassword, newPassword }).then(res => res.data).catch(err => Promise.reject(err.response.data));
     }
+
+    editProfile(mobile: String) {
+        return axiosAuthInstance.put('/user/edit-profile', { mobile }).then(res => res.data).catch(err => Promise.reject(err.response.data));
+    }
 }
 
 export default new UserService();

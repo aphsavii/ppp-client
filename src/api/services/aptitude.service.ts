@@ -62,6 +62,7 @@ class AptitudeService {
     public getToppers(aptitudeId: number) {
         return axiosAuthInstance.get('/aptitude/toppers/' + aptitudeId).then(res => res.data).catch(err => (Promise.reject(err.response.data)));
     }
+
     
 }
 export default new AptitudeService();
