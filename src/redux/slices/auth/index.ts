@@ -6,7 +6,8 @@ const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
     accessToken: null,
-    isAdmin: false
+    isAdmin: false,
+    isJspr: false
 };
 
 

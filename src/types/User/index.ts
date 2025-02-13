@@ -8,6 +8,7 @@ interface User {
 interface AuthState {
     isAuthenticated: boolean;
     isAdmin: boolean;
+    isJspr: boolean;
     user: User | null;
     accessToken: string | null;
 }

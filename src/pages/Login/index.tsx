@@ -56,6 +56,7 @@ function Login() {
         let authState: AuthState = {
           isAuthenticated: true,
           isAdmin: res.data.role == "admin",
+          isJspr: res.data.role == "jspr",
           accessToken: res.data.access_token,
           user: {
             regno: res.data.regno,
