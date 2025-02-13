@@ -173,7 +173,7 @@ function BlockedUsers() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="container mx-auto">
       <div className="mb-6">
         <Textarea
           placeholder="Enter registration numbers separated by commas (e.g., 2331012, 2331013)"
