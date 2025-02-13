@@ -118,20 +118,20 @@ export function NavLinks() {
       )}
       {
         auth.isAuthenticated && (auth.isAdmin || auth.isJspr) && (
-          <Link to="/change-password" className={cn("nav-link")}>
-            <Button variant="ghost" className="w-full justify-start">
-              <Key size={14} className="mr-2 inline" />
-              Change Password
-            </Button>
-          </Link>
+          <Link to="/admin/blocked-users" className={cn("nav-link")}>
+          <Button variant="ghost" className="w-full justify-start">
+            <Lock size={14} className="mr-2 inline" />
+            Blocked Users
+          </Button>
+        </Link>
         )
       }
       {auth.isAuthenticated && (
         <>
-          <Link to="/admin/blocked-users" className={cn("nav-link")}>
+          <Link to="/change-password" className={cn("nav-link")}>
             <Button variant="ghost" className="w-full justify-start">
-              <Lock size={14} className="mr-2 inline" />
-              Blocked Users
+              <Key size={14} className="mr-2 inline" />
+              Change Password
             </Button>
           </Link>
           <Button
