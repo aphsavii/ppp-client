@@ -20,12 +20,14 @@ const authSlice = createSlice({
             state.user = action.payload.user;
             state.accessToken = action.payload.accessToken;
             state.isAdmin = action.payload.isAdmin;
+            state.isJspr = action.payload.isJspr;
         },
         logout: (state) => {
             state.isAuthenticated = false;
             state.user = null;
             state.accessToken = null;
             state.isAdmin = false;
+            state.isJspr = false;
         }
     }
 });
