@@ -84,8 +84,6 @@ const AddQuestionDialog: React.FC = () => {
 
   const handleAddQuestion = async () => {
     // validate
-    console.log("hi");
-    console.log(newQuestion);
     if (
       !newQuestion.topic_tags ||
       !newQuestion.options.every((option) => option.trim()) ||
@@ -101,7 +99,6 @@ const AddQuestionDialog: React.FC = () => {
         description: "Please fill all the fields",
         variant: "destructive",
       });
-      console.log(newQuestion);
       return;
     }
 
@@ -118,7 +115,7 @@ const AddQuestionDialog: React.FC = () => {
             if (typeof newQuestion[key] === "string")
               formData.append(key, newQuestion[key].trim());
             else if (Array.isArray(newQuestion[key]))
-              formData.append(key, newQuestion[key].join(",").trim());
+              formData.append(key, newQuestion[key].join("/|/").trim());
             else formData.append(key, JSON.stringify(newQuestion[key]).trim());
           }
         }
