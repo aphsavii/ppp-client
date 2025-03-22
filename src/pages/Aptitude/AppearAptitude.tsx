@@ -328,7 +328,7 @@ const AppearAptitude = () => {
         sessionStorage.removeItem(`aptitude-trade-${aptiId}`);
       }
       
-      navigate("/aptitudes");
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
