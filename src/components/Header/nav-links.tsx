@@ -55,8 +55,8 @@ const links = [
     admin: false,
   },
   {
-    title: "JSPRS",
-    href: "/jsprs",
+    title: "SPRS",
+    href: "/sprs",
     icon: User,
     admin: true,
   },

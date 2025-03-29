@@ -51,7 +51,7 @@ const Routes = createRoutesFromElements(
     <Route path="/user/dashboard" element={<UserDashboard />} />
     <Route path="/hall-of-fame" element={<HallOfFame />} />
     <Route path="/geo" element={<GeolocationComponent />} />
-    <Route path="/jsprs" element={<JSPRS />} />
+    <Route path="/sprs" element={<JSPRS />} />
     <Route path="/change-password" element={<ChangePassword />} />
 
 
